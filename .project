@@ -3,6 +3,7 @@
 	<name>r-machine</name>
 	<comment></comment>
 	<projects>
+		<project>libal</project>
 	</projects>
 	<buildSpec>
 		<buildCommand>

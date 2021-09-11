@@ -10,16 +10,11 @@
 #ifndef R_MACHINE_H_
 #define R_MACHINE_H_
 
-#include <stdint.h>
-
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-/**
- * @return 0: entail, 1: not entail, -1: error
- */
-int r_pl_tt_entail(const char **kb, uint32_t kb_size, const char *q);
+
 
 #ifdef __cplusplus
 }
