@@ -25,7 +25,7 @@ endif()
 
 include_directories(${CMAKE_SOURCE_DIR}/include  ${LIBAL_DIR}/include)
 
-file(GLOB r_srcs src/*.c)
+file(GLOB r_srcs src/*.c bison-flex/*.c src/parser/*.c)
 
 add_library(r_objs OBJECT ${r_srcs})
 
@@ -34,6 +34,21 @@ add_executable(rmachine $<TARGET_OBJECTS:r_objs> src/exe/main.c)
 if(CMAKE_BUILD_TYPE STREQUAL "debug")
     option(ENABLE_TESTS "Build tests" ON)
     option(ENABLE_VALGRIND_TESTS "Build tests with valgrind" ON)
+endif()
+
+find_package(FLEX)
+find_package(BISON)
+
+if(NOT BISON_FOUND)
+    message(WARNING "Missing Bison.\nYou won't be able to generate source codes from changed flex/bison files.\nCompiling should still works fine.")
+elseif (NOT FLEX_FOUND)
+    message(WARNING "Missing Flex.\nYou won't be able to generate source codes from changed flex/bison files.\nCompiling should still works fine.")
+else()
+    add_custom_target(bison_flex
+        WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/bison-flex
+        COMMAND bison -l -o parser_bison.c --defines=parser_bison.h ${CMAKE_SOURCE_DIR}/src/parser/parser.y
+        COMMAND flex -8 -L -o parser_flex.c --header-file=parser_flex.h ${CMAKE_SOURCE_DIR}/src/parser/parser.l
+    )
 endif()
 
 if(ENABLE_TESTS)
