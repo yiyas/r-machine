@@ -11,9 +11,10 @@
 #ifndef PARSER_H_
 #define PARSER_H_
 
+#include <r_machine.h>
+
 #include "../../bison-flex/parser_bison.h"
 
-void yyerror (YYLTYPE *yyl, void *scanner, char const *msg);
-
+void yyerror(YYLTYPE *yyl, void *scanner, char const *msg);
 
 #endif /* PARSER_H_ */

@@ -10,11 +10,26 @@
 #ifndef R_MACHINE_H_
 #define R_MACHINE_H_
 
+#include <stdint.h>
+
 #ifdef __cplusplus
 extern "C" {
 #endif
 
+struct r_boolean_expression {
+    enum {
+        RB_AND, RB_OR, RB_NOT, RB_VALUE, RB_VARIABLE
+    } type;
 
+    union {
+        struct r_boolean_expression *two[2];
+        struct r_boolean_expression *one;
+        enum {
+            RB_FALSE = 0, RB_TRUE = 1
+        } value;
+        const char *name;
+    } data;
+};
 
 #ifdef __cplusplus
 }

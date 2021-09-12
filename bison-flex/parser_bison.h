@@ -64,7 +64,7 @@ union YYSTYPE
 
     int bool;
     const char *string;
-    struct logic_expression *logic_expr;
+    struct r_boolean_expression expr;
 
 
 };

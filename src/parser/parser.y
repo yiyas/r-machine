@@ -23,7 +23,7 @@
 %union{
     int bool;
     const char *string;
-    struct logic_expression *logic_expr;
+    struct r_boolean_expression expr;
 }
 
 %token BOOLEAN
@@ -36,8 +36,8 @@
 %left AND
 %right NOT
 
-%type <logic_expr> r_expression
-%type <logic_expr> logic_expression
+%type <expr> r_expression
+%type <expr> logic_expression
 
 %start r_expression
 
@@ -45,8 +45,9 @@
 r_expression: 
   logic_expression { $$ = $1; }
 
-logic_expression: BOOLEAN { $$ = NULL; }
-  |NAME { $$ = NULL; }
+logic_expression: BOOLEAN {  }
+  |NAME {  }
+  |'(' logic_expression ')' { $$ = $2; }
   |logic_expression AND logic_expression { $$ = $1; }
   |logic_expression OR logic_expression { $$ = $1; }
   |NOT logic_expression { $$ = $2; }
