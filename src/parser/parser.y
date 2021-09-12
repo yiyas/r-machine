@@ -22,23 +22,34 @@
 
 %union{
     int bool;
+    const char *string;
+    struct logic_expression *logic_expr;
 }
 
 %token BOOLEAN
+%token NAME
 %token NOT
 %token AND
 %token OR
 
+%left OR
+%left AND
+%right NOT
+
+%type <logic_expr> r_expression
+%type <logic_expr> logic_expression
+
 %start r_expression
 
 %%
-r_expression: /* nothing */
-  |r_expression logic_expression {  }
+r_expression: 
+  logic_expression { $$ = $1; }
 
-logic_expression: BOOLEAN
-  |logic_expression AND logic_expression {}
-  |logic_expression OR logic_expression {}
-  |NOT logic_expression {}
+logic_expression: BOOLEAN { $$ = NULL; }
+  |NAME { $$ = NULL; }
+  |logic_expression AND logic_expression { $$ = $1; }
+  |logic_expression OR logic_expression { $$ = $1; }
+  |NOT logic_expression { $$ = $2; }
   
   
   

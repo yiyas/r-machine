@@ -16,12 +16,21 @@
 %option noyywrap nounput noinput reentrant bison-bridge bison-locations
 
 %%
-"true" { yylval->bool = 1; return BOOLEAN; }
+"(" |
+")" |
+"[" |
+"]" |
+"{" |
+"}"     { return yytext[0]; }
+
+"true"  { yylval->bool = 1; return BOOLEAN; }
 "false" { yylval->bool = 0; return BOOLEAN; }
 
 "and" { return AND; }
 "or" { return OR; }
 "!" { return NOT; }
+
+[A-Za-z][A-Za-z0-9]*  { yylval->string = yytext; return NAME; }
 
 %%
 

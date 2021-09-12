@@ -50,9 +50,10 @@ extern int yydebug;
   enum yytokentype
   {
     BOOLEAN = 258,
-    NOT = 259,
-    AND = 260,
-    OR = 261
+    NAME = 259,
+    NOT = 260,
+    AND = 261,
+    OR = 262
   };
 #endif
 
@@ -62,6 +63,8 @@ union YYSTYPE
 {
 
     int bool;
+    const char *string;
+    struct logic_expression *logic_expr;
 
 
 };
