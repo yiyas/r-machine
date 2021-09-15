@@ -12,9 +12,7 @@
 
 #include "parser.h"
 
-void yyerror(YYLTYPE *yyl, void *scanner, char const *msg) {
-    (void) scanner;
-
-    printf("Error occurred at %d-%d: %s\n", yyl->first_line, yyl->first_column, msg);
+void parser_error(int line, int col, char const *msg) {
+    printf("Error occurred at %d-%d: %s\n", line, col, msg);
 }
 

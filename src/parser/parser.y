@@ -12,6 +12,8 @@
 #include "../src/parser/parser.h"
 #include "parser_bison.h"
 #include "parser_flex.h"
+
+static void yyerror(YYLTYPE *yyl, void *scanner, char const *msg);
 %}
 
 %define api.pure full
@@ -26,8 +28,8 @@
     struct r_boolean_expression expr;
 }
 
-%token BOOLEAN
-%token NAME
+%token <bool> BOOLEAN
+%token <string> NAME
 %token NOT
 %token AND
 %token OR
@@ -56,3 +58,7 @@ logic_expression: BOOLEAN {  }
   
 %%
 
+static void yyerror(YYLTYPE *yyl, void *scanner, char const *msg) {
+    (void) scanner;
+    parser_error(yyl->first_line, yyl->first_column, msg);
+}

@@ -81,6 +81,8 @@
 #include "parser_bison.h"
 #include "parser_flex.h"
 
+static void yyerror(YYLTYPE *yyl, void *scanner, char const *msg);
+
 
 # ifndef YY_CAST
 #  ifdef __cplusplus
@@ -536,7 +538,7 @@ static const yytype_int8 yytranslate[] =
   /* YYRLINE[YYN] -- Source line where rule number YYN was defined.  */
 static const yytype_int8 yyrline[] =
 {
-       0,    46,    46,    48,    49,    50,    51,    52,    53
+       0,    48,    48,    50,    51,    52,    53,    54,    55
 };
 #endif
 
@@ -1696,3 +1698,7 @@ yyreturn:
 }
 
 
+static void yyerror(YYLTYPE *yyl, void *scanner, char const *msg) {
+    (void) scanner;
+    parser_error(yyl->first_line, yyl->first_column, msg);
+}

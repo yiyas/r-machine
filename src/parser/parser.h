@@ -13,8 +13,6 @@
 
 #include <r_machine.h>
 
-#include "../../bison-flex/parser_bison.h"
-
-void yyerror(YYLTYPE *yyl, void *scanner, char const *msg);
+void parser_error(int line, int col, char const *msg);
 
 #endif /* PARSER_H_ */
