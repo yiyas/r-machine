@@ -816,11 +816,11 @@ YY_RULE_SETUP
 	YY_BREAK
 case 7:
 YY_RULE_SETUP
-{ yylval->bool = 1; return BOOLEAN; }
+{ yylval->bool = RB_TRUE; return BOOLEAN; }
 	YY_BREAK
 case 8:
 YY_RULE_SETUP
-{ yylval->bool = 0; return BOOLEAN; }
+{ yylval->bool = RB_FALSE; return BOOLEAN; }
 	YY_BREAK
 case 9:
 YY_RULE_SETUP

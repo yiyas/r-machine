@@ -23,8 +23,8 @@
 "{" |
 "}"     { return yytext[0]; }
 
-"true"  { yylval->bool = 1; return BOOLEAN; }
-"false" { yylval->bool = 0; return BOOLEAN; }
+"true"  { yylval->bool = RB_TRUE; return BOOLEAN; }
+"false" { yylval->bool = RB_FALSE; return BOOLEAN; }
 
 "and" { return AND; }
 "or" { return OR; }

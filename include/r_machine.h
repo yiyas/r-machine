@@ -16,6 +16,10 @@
 extern "C" {
 #endif
 
+typedef enum {
+    RB_FALSE = 0, RB_TRUE = 1
+} R_BOOLEAN;
+
 struct r_boolean_expression {
     enum {
         RB_AND, RB_OR, RB_NOT, RB_VALUE, RB_VARIABLE
@@ -24,9 +28,7 @@ struct r_boolean_expression {
     union {
         struct r_boolean_expression *two[2];
         struct r_boolean_expression *one;
-        enum {
-            RB_FALSE = 0, RB_TRUE = 1
-        } value;
+        R_BOOLEAN value;
         const char *name;
     } data;
 };

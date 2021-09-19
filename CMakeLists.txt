@@ -25,7 +25,7 @@ endif()
 
 include_directories(${CMAKE_SOURCE_DIR}/include  ${LIBAL_DIR}/include)
 
-file(GLOB r_srcs src/*.c bison-flex/*.c src/parser/*.c)
+file(GLOB r_srcs src/*.c bison-flex/*.c src/parser/*.c ${LIBAL_DIR}/src/*.c)
 
 add_library(r_objs OBJECT ${r_srcs})
 

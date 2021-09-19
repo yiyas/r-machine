@@ -143,7 +143,7 @@ extern int yydebug;
 union YYSTYPE
 {
 
-    int bool;
+    R_BOOLEAN bool;
     const char *string;
     struct r_boolean_expression expr;
 
@@ -1435,11 +1435,11 @@ yyreduce:
     break;
 
   case 3:
-                          {  }
+                          { parser_init_bool(&((yyval.expr)), (yyvsp[0].bool)); }
     break;
 
   case 4:
-        {  }
+        { if(parser_init_variable(&((yyval.expr)), (yyvsp[0].string))) { YYABORT; } }
     break;
 
   case 5:
@@ -1447,15 +1447,15 @@ yyreduce:
     break;
 
   case 6:
-                                         { (yyval.expr) = (yyvsp[-2].expr); }
+                                         { if(parser_init_and(&((yyval.expr)), &((yyvsp[-2].expr)), &((yyvsp[0].expr)))) { YYABORT; } }
     break;
 
   case 7:
-                                        { (yyval.expr) = (yyvsp[-2].expr); }
+                                        { if(parser_init_or(&((yyval.expr)), &((yyvsp[-2].expr)), &((yyvsp[0].expr)))) { YYABORT; } }
     break;
 
   case 8:
-                        { (yyval.expr) = (yyvsp[0].expr); }
+                        { if(parser_init_not(&((yyval.expr)), &((yyvsp[0].expr)))) { YYABORT; } }
     break;
 
 

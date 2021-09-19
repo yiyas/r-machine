@@ -15,4 +15,16 @@
 
 void parser_error(int line, int col, char const *msg);
 
+void parser_init_bool(struct r_boolean_expression *expr, R_BOOLEAN v);
+
+int parser_init_variable(struct r_boolean_expression *expr, const char *name);
+
+int parser_init_and(struct r_boolean_expression *expr, const struct r_boolean_expression *l,
+        struct r_boolean_expression *r);
+
+int parser_init_or(struct r_boolean_expression *expr, const struct r_boolean_expression *l,
+        struct r_boolean_expression *r);
+
+int parser_init_not(struct r_boolean_expression *expr, const struct r_boolean_expression *tgt);
+
 #endif /* PARSER_H_ */

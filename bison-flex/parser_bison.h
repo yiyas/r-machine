@@ -62,7 +62,7 @@ extern int yydebug;
 union YYSTYPE
 {
 
-    int bool;
+    R_BOOLEAN bool;
     const char *string;
     struct r_boolean_expression expr;
 

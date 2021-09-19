@@ -23,7 +23,7 @@ static void yyerror(YYLTYPE *yyl, void *scanner, char const *msg);
 %parse-param {void * scanner}
 
 %union{
-    int bool;
+    R_BOOLEAN bool;
     const char *string;
     struct r_boolean_expression expr;
 }
@@ -47,12 +47,12 @@ static void yyerror(YYLTYPE *yyl, void *scanner, char const *msg);
 r_expression: 
   logic_expression { $$ = $1; }
 
-logic_expression: BOOLEAN {  }
-  |NAME {  }
+logic_expression: BOOLEAN { parser_init_bool(&($$), $1); }
+  |NAME { if(parser_init_variable(&($$), $1)) { YYABORT; } }
   |'(' logic_expression ')' { $$ = $2; }
-  |logic_expression AND logic_expression { $$ = $1; }
-  |logic_expression OR logic_expression { $$ = $1; }
-  |NOT logic_expression { $$ = $2; }
+  |logic_expression AND logic_expression { if(parser_init_and(&($$), &($1), &($3))) { YYABORT; } }
+  |logic_expression OR logic_expression { if(parser_init_or(&($$), &($1), &($3))) { YYABORT; } }
+  |NOT logic_expression { if(parser_init_not(&($$), &($2))) { YYABORT; } }
   
   
   
