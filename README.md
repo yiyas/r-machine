@@ -1,6 +1,6 @@
 # R-Machine
 
-**This project is still in progress ...
+**This project is still in progress ...**
 
 [中文](README_zh.md)
 
