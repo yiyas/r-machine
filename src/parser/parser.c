@@ -19,19 +19,19 @@ void parser_error(int line, int col, char const *msg) {
     printf("Error occurred at %d-%d: %s\n", line, col, msg);
 }
 
-void parser_init_bool(struct r_boolean_expression *expr, R_BOOLEAN v) {
+void parser_init_bool(struct r_logic_sentence *expr, R_BOOLEAN v) {
     expr->type = RB_VALUE;
     expr->data.value = v;
 }
 
-int parser_init_variable(struct r_boolean_expression *expr, const char *name) {
+int parser_init_variable(struct r_logic_sentence *expr, const char *name) {
     expr->type = RB_VARIABLE;
     expr->data.name = al_dict_add(name);
     return expr->data.name ? 0 : 1;
 }
 
-int parser_init_and(struct r_boolean_expression *expr, const struct r_boolean_expression *l,
-        struct r_boolean_expression *r) {
+int parser_init_and(struct r_logic_sentence *expr, const struct r_logic_sentence *l,
+        struct r_logic_sentence *r) {
     expr->type = RB_AND;
     expr->data.two[0] = calloc(1, sizeof(*l));
     CHECK_NOMEM_RT(expr->data.two[0], 1);
@@ -45,8 +45,8 @@ int parser_init_and(struct r_boolean_expression *expr, const struct r_boolean_ex
     return 0;
 }
 
-int parser_init_or(struct r_boolean_expression *expr, const struct r_boolean_expression *l,
-        struct r_boolean_expression *r) {
+int parser_init_or(struct r_logic_sentence *expr, const struct r_logic_sentence *l,
+        struct r_logic_sentence *r) {
     expr->type = RB_OR;
     expr->data.two[0] = calloc(1, sizeof(*l));
     CHECK_NOMEM_RT(expr->data.two[0], 1);
@@ -60,7 +60,7 @@ int parser_init_or(struct r_boolean_expression *expr, const struct r_boolean_exp
     return 0;
 }
 
-int parser_init_not(struct r_boolean_expression *expr, const struct r_boolean_expression *tgt) {
+int parser_init_not(struct r_logic_sentence *expr, const struct r_logic_sentence *tgt) {
     expr->type = RB_NOT;
     expr->data.one = calloc(1, sizeof(*tgt));
     CHECK_NOMEM_RT(expr->data.one, 1);

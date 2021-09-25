@@ -145,7 +145,7 @@ union YYSTYPE
 
     R_BOOLEAN bool;
     const char *string;
-    struct r_boolean_expression expr;
+    struct r_logic_sentence expr;
 
 
 };
