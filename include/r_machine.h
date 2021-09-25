@@ -20,18 +20,11 @@ typedef enum {
     RB_FALSE = 0, RB_TRUE = 1
 } R_BOOLEAN;
 
-struct r_logic_sentence {
-    enum {
-        RB_AND, RB_OR, RB_NOT, RB_VALUE, RB_VARIABLE
-    } type;
+typedef enum {
+    RB_AND, RB_OR, RB_NOT, RB_VALUE, RB_VARIABLE
+} R_SENTENCE_TYPE;
 
-    union {
-        struct r_logic_sentence *two[2];
-        struct r_logic_sentence *one;
-        R_BOOLEAN value;
-        const char *name;
-    } data;
-};
+struct r_logic_sentence;
 
 struct r_logic_sentences {
     struct r_logic_sentence **array;
@@ -39,8 +32,8 @@ struct r_logic_sentences {
 };
 
 struct r_proposition {
-    struct r_logic_sentence premise;
-    struct r_logic_sentence conclusion;
+    struct r_logic_sentences premise;
+    struct r_logic_sentences conclusion;
 };
 
 struct r_error;

@@ -13,59 +13,80 @@
 #include <libal/pub.h>
 #include <libal/dict.h>
 
+#include "../r_internal.h"
 #include "parser_internal.h"
 
 void parser_error(int line, int col, char const *msg) {
     printf("Error occurred at %d-%d: %s\n", line, col, msg);
 }
 
-void parser_init_bool(struct r_logic_sentence *stc, R_BOOLEAN v) {
+struct r_logic_sentence* parser_init_bool(R_BOOLEAN v) {
+    struct r_logic_sentence *stc = NULL;
+
+    stc = calloc(1, sizeof(*stc));
+    CHECK_NOMEM_RT(stc, NULL);
+
     stc->type = RB_VALUE;
     stc->data.value = v;
+
+    return stc;
 }
 
-int parser_init_variable(struct r_logic_sentence *stc, const char *name) {
+struct r_logic_sentence* parser_init_variable(const char *name) {
+    struct r_logic_sentence *stc = NULL;
+
+    stc = calloc(1, sizeof(*stc));
+    CHECK_NOMEM_RT(stc, NULL);
+
     stc->type = RB_VARIABLE;
     stc->data.name = al_dict_add(name);
-    return stc->data.name ? 0 : 1;
+    CHECK_NOMEM_DO_RT(stc->data.name, free(stc), NULL);
+
+    return stc;
 }
 
-int parser_init_and(struct r_logic_sentence *stc, const struct r_logic_sentence *l,
+static struct r_logic_sentence* parser_init_two_operands(R_SENTENCE_TYPE type, struct r_logic_sentence *l,
         struct r_logic_sentence *r) {
-    stc->type = RB_AND;
-    stc->data.two[0] = calloc(1, sizeof(*l));
-    CHECK_NOMEM_RT(stc->data.two[0], 1);
+    struct r_logic_sentence *stc = NULL;
 
-    stc->data.two[1] = calloc(1, sizeof(*r));
-    CHECK_NOMEM_DO_RT(stc->data.two[1], free(stc->data.two[0]), 1);
+    if (!l || !r) {
+        LOG_ERR("Failed to create '%s' sentence due to previous error.", type == RB_AND ? "AND" : "OR");
+        r_sentence_destroy(l);
+        r_sentence_destroy(r);
+        return NULL;
+    }
 
-    *(stc->data.two[0]) = *l;
-    *(stc->data.two[1]) = *r;
+    stc = calloc(1, sizeof(*stc));
+    CHECK_NOMEM_RT(stc, NULL);
 
-    return 0;
+    stc->type = type;
+    stc->data.two[0] = l;
+    stc->data.two[1] = r;
+
+    return stc;
 }
 
-int parser_init_or(struct r_logic_sentence *stc, const struct r_logic_sentence *l,
-        struct r_logic_sentence *r) {
-    stc->type = RB_OR;
-    stc->data.two[0] = calloc(1, sizeof(*l));
-    CHECK_NOMEM_RT(stc->data.two[0], 1);
-
-    stc->data.two[1] = calloc(1, sizeof(*r));
-    CHECK_NOMEM_DO_RT(stc->data.two[1], free(stc->data.two[0]), 1);
-
-    *(stc->data.two[0]) = *l;
-    *(stc->data.two[1]) = *r;
-
-    return 0;
+struct r_logic_sentence* parser_init_and(struct r_logic_sentence *l, struct r_logic_sentence *r) {
+    return parser_init_two_operands(RB_AND, l, r);
 }
 
-int parser_init_not(struct r_logic_sentence *stc, const struct r_logic_sentence *tgt) {
+struct r_logic_sentence* parser_init_or(struct r_logic_sentence *l, struct r_logic_sentence *r) {
+    return parser_init_two_operands(RB_OR, l, r);
+}
+
+struct r_logic_sentence* parser_init_not(struct r_logic_sentence *tgt) {
+    struct r_logic_sentence *stc = NULL;
+
+    if (!tgt) {
+        LOG_ERR("Failed to create 'NOT' sentence due to previous error.");
+        return NULL;
+    }
+
+    stc = calloc(1, sizeof(*stc));
+    CHECK_NOMEM_RT(stc, NULL);
+
     stc->type = RB_NOT;
-    stc->data.one = calloc(1, sizeof(*tgt));
-    CHECK_NOMEM_RT(stc->data.one, 1);
+    stc->data.one = tgt;
 
-    *(stc->data.one) = *tgt;
-
-    return 0;
+    return stc;
 }

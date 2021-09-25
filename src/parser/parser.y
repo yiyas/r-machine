@@ -13,19 +13,19 @@
 #include "parser_bison.h"
 #include "parser_flex.h"
 
-static void yyerror(YYLTYPE *yyl, void *scanner, char const *msg);
+static void yyerror(YYLTYPE *yyl, void *scanner, struct r_logic_sentence **stc, char const *msg);
 %}
 
 %define api.pure full
 %locations
 
 %lex-param {void * scanner}
-%parse-param {void * scanner}
+%parse-param {void * scanner} {struct r_logic_sentence **stc}
 
 %union{
     R_BOOLEAN bool;
     const char *string;
-    struct r_logic_sentence expr;
+    struct r_logic_sentence *expr;
 }
 
 %token <bool> BOOLEAN
@@ -38,27 +38,27 @@ static void yyerror(YYLTYPE *yyl, void *scanner, char const *msg);
 %left AND
 %right NOT
 
-%type <expr> r_expression
 %type <expr> logic_expression
 
 %start r_expression
 
 %%
 r_expression: 
-  logic_expression { $$ = $1; }
+  logic_expression { *stc = $1; }
 
-logic_expression: BOOLEAN { parser_init_bool(&($$), $1); }
-  |NAME { if(parser_init_variable(&($$), $1)) { YYABORT; } }
+logic_expression: BOOLEAN { $$ = parser_init_bool($1); }
+  |NAME { $$ = parser_init_variable($1); }
   |'(' logic_expression ')' { $$ = $2; }
-  |logic_expression AND logic_expression { if(parser_init_and(&($$), &($1), &($3))) { YYABORT; } }
-  |logic_expression OR logic_expression { if(parser_init_or(&($$), &($1), &($3))) { YYABORT; } }
-  |NOT logic_expression { if(parser_init_not(&($$), &($2))) { YYABORT; } }
+  |logic_expression AND logic_expression { $$ = parser_init_and($1, $3); }
+  |logic_expression OR logic_expression { $$ = parser_init_or($1, $3); }
+  |NOT logic_expression { $$ = parser_init_not($2); }
   
   
   
 %%
 
-static void yyerror(YYLTYPE *yyl, void *scanner, char const *msg) {
+static void yyerror(YYLTYPE *yyl, void *scanner, struct r_logic_sentence **stc, char const *msg) {
     (void) scanner;
+    (void) stc;
     parser_error(yyl->first_line, yyl->first_column, msg);
 }

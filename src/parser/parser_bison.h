@@ -64,7 +64,7 @@ union YYSTYPE
 
     R_BOOLEAN bool;
     const char *string;
-    struct r_logic_sentence expr;
+    struct r_logic_sentence *expr;
 
 
 };
@@ -89,6 +89,6 @@ struct YYLTYPE
 
 
 
-int yyparse (void * scanner);
+int yyparse (void * scanner, struct r_logic_sentence **stc);
 
 #endif /* !YY_YY_PARSER_BISON_H_INCLUDED  */

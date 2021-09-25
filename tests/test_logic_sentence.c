@@ -8,6 +8,7 @@
  *     https://opensource.org/licenses/BSD-3-Clause
  */
 #include <stddef.h>
+#include <stdlib.h>
 #include <string.h>
 
 #include "unity/unity.h"
