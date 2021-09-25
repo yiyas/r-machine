@@ -7,23 +7,5 @@
  *
  *     https://opensource.org/licenses/BSD-3-Clause
  */
-#include <stddef.h>
-#include <string.h>
+#include <r_machine.h>
 
-#include "unity/unity.h"
-#include "r_machine.h"
-
-void setUp(void) {
-}
-
-void tearDown(void) {
-}
-
-static void test_tt_entail() {
-}
-
-int main() {
-    UNITY_BEGIN();
-    RUN_TEST(test_tt_entail);
-    return UNITY_END();
-}

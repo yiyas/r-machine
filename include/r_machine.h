@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2015 - 2017 YIYAS
+ * Copyright (c) 2015 - 2021 YIYAS
  *
  * This source code is licensed under BSD 3-Clause License (the "License").
  * You may not use this file except in compliance with the License.
@@ -33,23 +33,26 @@ struct r_logic_sentence {
     } data;
 };
 
-struct r_proposition {
-    struct r_logic_sentence **premises;
-    uint32_t premise_size;
+struct r_logic_sentences {
+    struct r_logic_sentence **array;
+    uint32_t size;
+};
 
-    struct r_logic_sentence **conclusions;
-    uint32_t conclusion_size;
+struct r_proposition {
+    struct r_logic_sentence premise;
+    struct r_logic_sentence conclusion;
 };
 
 struct r_error;
-struct r_rule;
 
-struct r_logic_sentence* r_tree_parse(const char **expr, struct r_error *err);
-char* r_tree_print(const struct r_logic_sentence *tree);
-void r_tree_destroy(struct r_logic_sentence *tree);
+void r_error_destroy(struct r_error *err);
 
-int r_convert(struct r_logic_sentence *tree, const struct r_rule *rule, struct r_error *err);
+struct r_logic_sentence* r_sentence_parse(const char *expr, struct r_error **err);
+int r_sentence_print(char **str, const struct r_logic_sentence *sentence);
+void r_sentence_destroy(struct r_logic_sentence *sentence);
 
+int r_calculate(const struct r_logic_sentences *premise, const struct r_proposition *rule,
+        struct r_logic_sentences *conclusion, struct r_error **err);
 
 #ifdef __cplusplus
 }

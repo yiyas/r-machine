@@ -68,7 +68,7 @@
 /* First part of user prologue.  */
 
 /**
- * Copyright (c) 2015 - 2017 YIYAS
+ * Copyright (c) 2015 - 2021 YIYAS
  *
  * This source code is licensed under BSD 3-Clause License (the "License").
  * You may not use this file except in compliance with the License.
@@ -77,7 +77,7 @@
  *     https://opensource.org/licenses/BSD-3-Clause
  */
  
-#include "../src/parser/parser.h"
+#include "parser_internal.h"
 #include "parser_bison.h"
 #include "parser_flex.h"
 

@@ -457,7 +457,7 @@ static const flex_int16_t yy_chk[56] =
 #define YY_MORE_ADJ 0
 #define YY_RESTORE_YY_MORE_OFFSET
 /**
- * Copyright (c) 2015 - 2017 YIYAS
+ * Copyright (c) 2015 - 2021 YIYAS
  *
  * This source code is licensed under BSD 3-Clause License (the "License").
  * You may not use this file except in compliance with the License.
@@ -465,7 +465,7 @@ static const flex_int16_t yy_chk[56] =
  *
  *     https://opensource.org/licenses/BSD-3-Clause
  */
-#include "../src/parser/parser.h"
+#include "parser_internal.h"
 #include "parser_bison.h"
 #define YY_NO_INPUT 1
 

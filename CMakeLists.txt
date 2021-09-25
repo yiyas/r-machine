@@ -25,7 +25,7 @@ endif()
 
 include_directories(${CMAKE_SOURCE_DIR}/include  ${LIBAL_DIR}/include)
 
-file(GLOB r_srcs src/*.c bison-flex/*.c src/parser/*.c ${LIBAL_DIR}/src/*.c)
+file(GLOB r_srcs src/*.c src/parser/*.c ${LIBAL_DIR}/src/*.c)
 
 add_library(r_objs OBJECT ${r_srcs})
 
@@ -45,9 +45,9 @@ elseif (NOT FLEX_FOUND)
     message(WARNING "Missing Flex.\nYou won't be able to generate source codes from changed flex/bison files.\nCompiling should still works fine.")
 else()
     add_custom_target(bison_flex
-        WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/bison-flex
-        COMMAND bison -l -o parser_bison.c --defines=parser_bison.h ${CMAKE_SOURCE_DIR}/src/parser/parser.y
-        COMMAND flex -8 -L -o parser_flex.c --header-file=parser_flex.h ${CMAKE_SOURCE_DIR}/src/parser/parser.l
+        WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/src/parser
+        COMMAND bison -l -o parser_bison.c --defines=parser_bison.h parser.y
+        COMMAND flex -8 -L -o parser_flex.c --header-file=parser_flex.h parser.l
     )
 endif()
 
