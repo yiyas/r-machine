@@ -17,7 +17,7 @@
 #include "parser_internal.h"
 
 void parser_error(int line, int col, char const *msg) {
-    printf("Error occurred at %d-%d: %s\n", line, col, msg);
+    r_log("ERR", "bison_flex", line, "Error occurred at column %d: %s\n", col, msg);
 }
 
 struct r_logic_sentence* parser_init_bool(R_BOOLEAN v) {

@@ -38,6 +38,9 @@ struct r_proposition {
 
 struct r_error;
 
+int r_init();
+void r_destroy();
+
 void r_error_destroy(struct r_error *err);
 
 struct r_logic_sentence* r_sentence_parse(const char *expr, struct r_error **err);

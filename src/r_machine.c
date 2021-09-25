@@ -10,3 +10,11 @@
 
 #include <r_machine.h>
 #include <libal/dict.h>
+
+int r_init() {
+    return al_dict_init(100);
+}
+
+void r_destroy() {
+    al_dict_destroy();
+}

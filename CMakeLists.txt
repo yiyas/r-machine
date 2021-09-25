@@ -13,7 +13,7 @@ if(NOT CMAKE_BUILD_TYPE)
 endif()
 
 set(CMAKE_C_STANDARD 11)
-set(CMAKE_C_FLAGS           "${CMAKE_C_FLAGS} -Wall -Wextra -D__FILENAME__='\"$(subst $(dir $<),,$<)\"'")
+set(CMAKE_C_FLAGS           "${CMAKE_C_FLAGS} -Wall -Wextra -D_GNU_SOURCE")
 set(CMAKE_C_FLAGS_RELEASE   "-O2")
 set(CMAKE_C_FLAGS_DEBUG     "-g -O0")
 

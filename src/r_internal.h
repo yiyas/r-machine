@@ -13,10 +13,10 @@
 
 #include <r_machine.h>
 
-#define LOG_DBG(fmt, args...) r_log("DBG", __FILE__, __LINE__, fmt, ##args);
-#define LOG_INF(fmt, args...) r_log("INF", __FILE__, __LINE__, fmt, ##args);
-#define LOG_WRN(fmt, args...) r_log("WRN", __FILE__, __LINE__, fmt, ##args);
-#define LOG_ERR(fmt, args...) r_log("ERR", __FILE__, __LINE__, fmt, ##args);
+#define LOG_DBG(fmt, args...) r_log("DBG", __FILE__, __LINE__, fmt, ##args)
+#define LOG_INF(fmt, args...) r_log("INF", __FILE__, __LINE__, fmt, ##args)
+#define LOG_WRN(fmt, args...) r_log("WRN", __FILE__, __LINE__, fmt, ##args)
+#define LOG_ERR(fmt, args...) r_log("ERR", __FILE__, __LINE__, fmt, ##args)
 
 void r_log(const char *level, const char *file, int line, const char *fmt, ...) __attribute__((format(printf, 4, 5)));
 

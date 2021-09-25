@@ -15,14 +15,17 @@
 #include "r_machine.h"
 
 void setUp(void) {
+    int rc = r_init();
+    TEST_ASSERT_EQUAL(0, rc);
 }
 
 void tearDown(void) {
+    r_destroy();
 }
 
-static void test_single_operator() {
+static void parse_and_print_eq(const char *express, const char *expect) {
     struct r_error *err = NULL;
-    struct r_logic_sentence *stc = r_sentence_parse("true", &err);
+    struct r_logic_sentence *stc = r_sentence_parse(express, &err);
 
     TEST_ASSERT_NOT_NULL(stc);
     TEST_ASSERT_NULL(err);
@@ -31,14 +34,35 @@ static void test_single_operator() {
     int rc = r_sentence_print(&str, stc);
 
     TEST_ASSERT_EQUAL(0, rc);
-    TEST_ASSERT_EQUAL_STRING("true", str);
+    TEST_ASSERT_EQUAL_STRING(expect, str);
 
     r_sentence_destroy(stc);
     free(str);
 }
 
+static void test_single_operator() {
+    parse_and_print_eq("true", "true");
+    parse_and_print_eq("false", "false");
+
+    parse_and_print_eq("A", "A");
+}
+
+static void test_and() {
+    parse_and_print_eq("true and false", "true and false");
+    parse_and_print_eq("false and A", "false and A");
+    parse_and_print_eq("A and BX", "A and BX");
+}
+
+static void test_or() {
+    parse_and_print_eq("true or false", "true or false");
+    parse_and_print_eq("false or A", "false or A");
+    parse_and_print_eq("A or BX", "A or BX");
+}
+
 int main() {
     UNITY_BEGIN();
     RUN_TEST(test_single_operator);
+    RUN_TEST(test_and);
+    RUN_TEST(test_or);
     return UNITY_END();
 }
