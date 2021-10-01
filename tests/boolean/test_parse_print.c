@@ -11,7 +11,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "unity/unity.h"
+#include "../unity/unity.h"
 #include "r_machine.h"
 
 void setUp(void) {
@@ -65,16 +65,21 @@ static void test_not() {
 }
 
 static void test_mix() {
-    parse_and_print_eq("A and B and C", "A and B and C");
-    parse_and_print_eq("A and B or C", "A and B or C");
-    parse_and_print_eq("A or B or C", "A or B or C");
+    parse_and_print_eq("A and B and C and D", "A and B and C and D");
+    parse_and_print_eq("(A or B) and C and D", "(A or B) and C and D");
+    parse_and_print_eq("(A and B) and (C and D)", "A and B and (C and D)");
+    parse_and_print_eq("(A or B) and (C or D)", "(A or B) and (C or D)");
+
+    parse_and_print_eq("A or B or C or D", "A or B or C or D");
+    parse_and_print_eq("(A or B) or C or D", "A or B or C or D");
+    parse_and_print_eq("(A or B) or (C or D)", "A or B or (C or D)");
+    parse_and_print_eq("(A and B) or (C and D)", "A and B or C and D");
+
+    parse_and_print_eq("(A and B) or C", "A and B or C");
+    parse_and_print_eq("(A or B) and C", "(A or B) and C");
 
     parse_and_print_eq("A or !B", "A or !B");
     parse_and_print_eq("!(A or B)", "!(A or B)");
-    parse_and_print_eq("(A or B) and C", "(A or B) and C");
-    parse_and_print_eq("(A or B) and (C or D)", "(A or B) and (C or D)");
-
-    parse_and_print_eq("(A and B) or (C and D)", "A and B or C and D");
     parse_and_print_eq("!(!A)", "!!A");
 }
 

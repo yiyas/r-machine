@@ -1,5 +1,5 @@
 
-file(GLOB test_srcs *.c)
+file(GLOB_RECURSE test_srcs test_*.c)
 
 set(TEST_DEP_LIBS pthread)
 if(ENABLE_GCOV)
