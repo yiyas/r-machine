@@ -1,5 +1,5 @@
 
-file(GLOB_RECURSE test_srcs test_*.c)
+file(GLOB_RECURSE test_srcs RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} test_*.c)
 
 set(TEST_DEP_LIBS pthread)
 if(ENABLE_GCOV)
@@ -7,14 +7,15 @@ if(ENABLE_GCOV)
 endif(ENABLE_GCOV)
 
 foreach(test_src IN LISTS test_srcs)
-    string(REGEX REPLACE "(.*/)?(.*)\\.c$" "\\2" test_name ${test_src})
-    string(FIND ${test_name} "test_" test_pos)
-    if(${test_pos} EQUAL 0)
-        list(APPEND all_tests ${test_name})
-        add_executable(${test_name} ${test_src} unity/unity.c)
-        target_link_libraries(${test_name} ${TEST_DEP_LIBS} $<TARGET_OBJECTS:r_objs>)
-        add_test(NAME ${test_name} COMMAND $<TARGET_FILE:${test_name}> WORKING_DIRECTORY ${CMAKE_BINARY_DIR})
-    endif()
+    message(${test_src})
+    
+    string(REGEX REPLACE "(.+)\\.c$" "\\1" test_name ${test_src})
+    string(REPLACE "/" "." test_name ${test_name})
+    
+    list(APPEND all_tests ${test_name})
+    add_executable(${test_name} ${test_src} unity/unity.c)
+    target_link_libraries(${test_name} ${TEST_DEP_LIBS} $<TARGET_OBJECTS:r_objs>)
+    add_test(NAME ${test_name} COMMAND $<TARGET_FILE:${test_name}> WORKING_DIRECTORY ${CMAKE_BINARY_DIR})
 endforeach(test_src)
 
 find_program(VALGRIND_FOUND valgrind)
