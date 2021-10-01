@@ -59,7 +59,7 @@ static int print_one_operand(char **str, R_SENTENCE_TYPE type, const struct r_lo
         return 1;
     }
 
-    if (!is_right_operand_need_backets(type, r)) {
+    if (!is_left_operand_need_backets(type, r)) {
         rc = asprintf(str, "!%s", rstr);
     } else {
         rc = asprintf(str, "!(%s)", rstr);

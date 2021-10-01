@@ -72,6 +72,10 @@ static void test_mix() {
     parse_and_print_eq("A or !B", "A or !B");
     parse_and_print_eq("!(A or B)", "!(A or B)");
     parse_and_print_eq("(A or B) and C", "(A or B) and C");
+    parse_and_print_eq("(A or B) and (C or D)", "(A or B) and (C or D)");
+
+    parse_and_print_eq("(A and B) or (C and D)", "A and B or C and D");
+    parse_and_print_eq("!(!A)", "!!A");
 }
 
 int main() {
