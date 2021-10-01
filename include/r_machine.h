@@ -21,7 +21,7 @@ typedef enum {
 } R_BOOLEAN;
 
 typedef enum {
-    RB_AND, RB_OR, RB_NOT, RB_VALUE, RB_VARIABLE
+    RB_VALUE, RB_VARIABLE, RB_NOT, RB_AND, RB_OR
 } R_SENTENCE_TYPE;
 
 struct r_logic_sentence;

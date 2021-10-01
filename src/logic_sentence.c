@@ -15,6 +15,9 @@
 #include "parser/parser_bison.h"
 #include "parser/parser_flex.h"
 
+#define is_left_operand_need_backets(t, st) (st->type <= t ? 0 : 1)
+#define is_right_operand_need_backets(t, st) (st->type < t ? 0 : 1)
+
 static int print_two_operands(char **str, R_SENTENCE_TYPE type, const struct r_logic_sentence *l,
         const struct r_logic_sentence *r) {
     int lrc, rrc, rc;
@@ -29,8 +32,38 @@ static int print_two_operands(char **str, R_SENTENCE_TYPE type, const struct r_l
         return 1;
     }
 
-    rc = asprintf(str, "%s %s %s", lstr, (type == RB_AND ? "and" : "or"), rstr);
+    if (is_left_operand_need_backets(type, l) && is_right_operand_need_backets(type, r)) {
+        rc = asprintf(str, "(%s) %s (%s)", lstr, (type == RB_AND ? "and" : "or"), rstr);
+    } else if (is_left_operand_need_backets(type, l)) {
+        rc = asprintf(str, "(%s) %s %s", lstr, (type == RB_AND ? "and" : "or"), rstr);
+    } else if (is_right_operand_need_backets(type, r)) {
+        rc = asprintf(str, "%s %s (%s)", lstr, (type == RB_AND ? "and" : "or"), rstr);
+    } else {
+        rc = asprintf(str, "%s %s %s", lstr, (type == RB_AND ? "and" : "or"), rstr);
+    }
     free(lstr);
+    free(rstr);
+    CHECK_INTERR_RT(rc < 0, -1);
+
+    return 0;
+}
+
+static int print_one_operand(char **str, R_SENTENCE_TYPE type, const struct r_logic_sentence *r) {
+    int rrc, rc;
+    char *rstr = NULL;
+
+    (void) type;
+
+    rrc = r_sentence_print(&rstr, r);
+    if (rrc) {
+        return 1;
+    }
+
+    if (!is_right_operand_need_backets(type, r)) {
+        rc = asprintf(str, "!%s", rstr);
+    } else {
+        rc = asprintf(str, "!(%s)", rstr);
+    }
     free(rstr);
     CHECK_INTERR_RT(rc < 0, -1);
 
@@ -54,6 +87,9 @@ int r_sentence_print(char **str, const struct r_logic_sentence *sentence) {
     case RB_AND:
     case RB_OR:
         rc = print_two_operands(str, sentence->type, sentence->data.two[0], sentence->data.two[1]);
+        break;
+    case RB_NOT:
+        rc = print_one_operand(str, sentence->type, sentence->data.one);
         break;
     default:
         LOG_ERR("unlikely branch!");

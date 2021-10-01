@@ -59,10 +59,27 @@ static void test_or() {
     parse_and_print_eq("A or BX", "A or BX");
 }
 
+static void test_not() {
+    parse_and_print_eq("!false", "!false");
+    parse_and_print_eq("!A", "!A");
+}
+
+static void test_mix() {
+    parse_and_print_eq("A and B and C", "A and B and C");
+    parse_and_print_eq("A and B or C", "A and B or C");
+    parse_and_print_eq("A or B or C", "A or B or C");
+
+    parse_and_print_eq("A or !B", "A or !B");
+    parse_and_print_eq("!(A or B)", "!(A or B)");
+    parse_and_print_eq("(A or B) and C", "(A or B) and C");
+}
+
 int main() {
     UNITY_BEGIN();
     RUN_TEST(test_single_operator);
     RUN_TEST(test_and);
     RUN_TEST(test_or);
+    RUN_TEST(test_not);
+    RUN_TEST(test_mix);
     return UNITY_END();
 }
