@@ -209,6 +209,11 @@ struct r_logic_sentence* r_sentence_dup(const struct r_logic_sentence *st) {
             goto error;
         }
         dup->data.one->parent = dup;
+    } else if (dup->type == RB_VARIABLE){
+        dup->data.name = al_dict_add(st->data.name);
+        if (!dup->data.name) {
+            goto error;
+        }
     }
 
     return dup;

@@ -24,7 +24,7 @@ void tearDown(void) {
 }
 
 static void test_not_not() {
-    struct r_logic_sentence *st, *from, *to;
+    struct r_logic_sentence *st, *from, *to, *rt;
 
     from = r_sentence_parse("!!A", NULL);
     TEST_ASSERT_NOT_NULL(from);
@@ -35,18 +35,21 @@ static void test_not_not() {
     st = r_sentence_parse("!!B", NULL);
     TEST_ASSERT_NOT_NULL(st);
 
-    int rc = r_convert(st, from, to, NULL);
-    TEST_ASSERT_EQUAL(0, rc);
+    rt = r_convert(st, from, to, NULL);
+    TEST_ASSERT_NOT_NULL(rt);
 
     char *str = NULL;
-    rc = r_sentence_print(&str, st);
+    int rc = r_sentence_print(&str, rt);
     TEST_ASSERT_EQUAL(0, rc);
 
     TEST_ASSERT_EQUAL_STRING("B", str);
 
+    free(str);
+
     r_sentence_destroy(st);
     r_sentence_destroy(from);
     r_sentence_destroy(to);
+    r_sentence_destroy(rt);
 }
 
 int main() {

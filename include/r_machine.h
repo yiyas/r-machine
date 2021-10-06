@@ -53,7 +53,7 @@ void r_sentence_destroy(struct r_logic_sentence *sentence);
 const struct r_logic_sentence* r_dfs_next(const struct r_logic_sentence *root, const struct r_logic_sentence *st);
 
 #define R_SENTENCE_FOR(root, iter)  for (iter = root; iter; iter = r_dfs_next(root, iter))
-#define R_SENTENCE_FOR_SAFE(root, next, iter)  for (iter = root; (iter ? (next = r_dfs_next(root, iter), 1) : 0); iter = next)
+#define R_SENTENCE_FOR_SAFE(root, next, iter)  for (iter = root; (iter ? (next = (struct r_logic_sentence *)r_dfs_next(root, iter), 1) : 0); iter = next)
 
 int r_sentences_add(struct r_logic_sentences *sts, struct r_logic_sentence *st);
 int r_sentences_add_exp(struct r_logic_sentences *sts, const char *exp, struct r_error **err);

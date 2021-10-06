@@ -7,6 +7,8 @@
  *
  *     https://opensource.org/licenses/BSD-3-Clause
  */
+#include <stdlib.h>
+#include <string.h>
 
 #include <r_machine.h>
 #include <libal/dict.h>
@@ -56,7 +58,7 @@ int r_sentences_add(struct r_logic_sentences *sts, struct r_logic_sentence *st) 
 }
 
 void r_sentences_clean(struct r_logic_sentences *sts) {
-    int i;
+    uint32_t i;
 
     for (i = 0; i < sts->count; ++i) {
         r_sentence_destroy(sts->array[i]);
@@ -72,10 +74,64 @@ void r_proposition_clean(struct r_proposition *p) {
     r_sentences_clean(&p->conclusion);
 }
 
+static int find_variables(const struct r_logic_sentence *st, const struct r_logic_sentence *from,
+        struct al_hash_table *ht) {
+    const struct r_logic_sentence **saved_variable;
+    int rc;
+
+    if (from->type == RB_VARIABLE) {
+        saved_variable = al_ht_getval(ht, &from->data.name);
+        if (!saved_variable) {
+            rc = al_ht_put(ht, &from->data.name, &st, NULL);
+            CHECK_INTERR_RT(rc, -1);
+        } else {
+            CHECK_INTERR_RT(!(*saved_variable), -1);
+            rc = r_sentence_cmp(*saved_variable, st);
+            if (rc) {
+                return 1;
+            }
+        }
+    } else {
+        if (st->type != from->type) {
+            return 1;
+        }
+
+        switch (from->type) {
+        case RB_AND:
+        case RB_OR:
+            rc = find_variables(st->data.two[0], from->data.two[0], ht);
+            if (rc) {
+                return 1;
+            }
+            rc = find_variables(st->data.two[1], from->data.two[1], ht);
+            if (rc) {
+                return 1;
+            }
+            break;
+        case RB_NOT:
+            rc = find_variables(st->data.one, from->data.one, ht);
+            if (rc) {
+                return 1;
+            }
+            break;
+        case RB_VALUE:
+            if (st->data.value != from->data.value) {
+                return 1;
+            }
+            break;
+        default:
+            LOG_ERR("Unlikely!");
+            break;
+        }
+    }
+
+    return 0;
+}
+
 struct r_logic_sentence* r_convert(const struct r_logic_sentence *st, const struct r_logic_sentence *from,
         const struct r_logic_sentence *to, struct r_error **UNUSED(err)) {
     struct al_hash_table *ht = NULL;
-    const struct r_logic_sentence *iter_from, *iter_st, **saved_variable;
+    const struct r_logic_sentence **saved_variable;
     struct r_logic_sentence *dup = NULL, *next_dup, *iter_dup, *tmp;
     int rc;
 
@@ -84,28 +140,17 @@ struct r_logic_sentence* r_convert(const struct r_logic_sentence *st, const stru
     ht = al_ht_str_new(sizeof(struct r_logic_sentence*), 0, 0);
     CHECK_NOMEM_RT(ht, NULL);
 
-    for (iter_from = from, iter_st = st; iter_from && iter_st; iter_from = r_dfs_next(from, iter_from), iter_st =
-            r_dfs_next(from, iter_st)) {
-        if (iter_from->type == RB_VARIABLE) {
-            saved_variable = al_ht_getval(ht, &iter_from->data.name);
-            if (!saved_variable) {
-                rc = al_ht_put(ht, &iter_from->data.name, &iter_st, NULL);
-                CHECK_INTERR_GOTO(rc, finish);
-            } else {
-                CHECK_INTERR_GOTO(!(*saved_variable), finish);
-                rc = r_sentence_cmp(*saved_variable, iter_st);
-                if (rc) {
-                    LOG_WRN("Failed to match sentence and rule.");
-                    goto finish;
-                }
-            }
-        }
+    rc = find_variables(st, from, ht);
+    if(rc) {
+        LOG_WRN("Failed to match sentence and rule.");
+        goto finish;
     }
 
     dup = r_sentence_dup(to);
     CHECK_NOMEM_GOTO(dup, finish);
 
-    R_SENTENCE_FOR_SAFE(dup, next_dup, iter_dup) {
+    R_SENTENCE_FOR_SAFE(dup, next_dup, iter_dup)
+    {
         if (iter_dup->type == RB_VARIABLE) {
             saved_variable = al_ht_getval(ht, &iter_dup->data.name);
             if (!saved_variable) {
@@ -125,7 +170,7 @@ struct r_logic_sentence* r_convert(const struct r_logic_sentence *st, const stru
     }
 
     finish:
-    al_ht_clear(ht);
+    al_ht_destroy(ht);
     return dup;
 }
 
