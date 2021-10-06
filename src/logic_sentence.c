@@ -161,7 +161,7 @@ int r_sentence_cmp(const struct r_logic_sentence *st1, const struct r_logic_sent
         return 1;
     }
 
-    switch(st1->type) {
+    switch (st1->type) {
     case RB_NOT:
         return r_sentence_cmp(st1->data.one, st2->data.one);
     case RB_AND:
@@ -173,7 +173,48 @@ int r_sentence_cmp(const struct r_logic_sentence *st1, const struct r_logic_sent
         return strcmp(st1->data.name, st2->data.name);
     default:
         LOG_ERR("unlikely!");
-        return  -1;
+        return -1;
     }
+}
+
+struct r_logic_sentence* r_sentence_dup(const struct r_logic_sentence *st) {
+    struct r_logic_sentence *dup;
+
+    if (!st) {
+        return NULL;
+    }
+
+    dup = calloc(1, sizeof(*dup));
+    CHECK_NOMEM_RT(dup, NULL);
+
+    (void) memcpy(dup, st, sizeof(*dup));
+
+    dup->parent = NULL;
+
+    if (dup->type == RB_AND || dup->type == RB_OR) {
+        dup->data.two[0] = r_sentence_dup(st->data.two[0]);
+        if (!dup->data.two[0]) {
+            goto error;
+        }
+        dup->data.two[0]->parent = dup;
+        dup->data.two[1] = r_sentence_dup(st->data.two[1]);
+        if (!dup->data.two[1]) {
+            r_sentence_destroy(dup->data.two[0]);
+            goto error;
+        }
+        dup->data.two[1]->parent = dup;
+    } else if (dup->type == RB_NOT) {
+        dup->data.one = r_sentence_dup(st->data.one);
+        if (!dup->data.one) {
+            goto error;
+        }
+        dup->data.one->parent = dup;
+    }
+
+    return dup;
+
+    error:
+    free(dup);
+    return NULL;
 }
 

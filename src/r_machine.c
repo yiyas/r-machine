@@ -72,26 +72,29 @@ void r_proposition_clean(struct r_proposition *p) {
     r_sentences_clean(&p->conclusion);
 }
 
-int r_convert(struct r_logic_sentence *st, const struct r_logic_sentence *from, const struct r_logic_sentence *to,
-        struct r_error **UNUSED(err)) {
+struct r_logic_sentence* r_convert(const struct r_logic_sentence *st, const struct r_logic_sentence *from,
+        const struct r_logic_sentence *to, struct r_error **UNUSED(err)) {
     struct al_hash_table *ht = NULL;
-    const struct r_logic_sentence *iter, *iter2, **saved_variable;
+    const struct r_logic_sentence *iter_from, *iter_st, **saved_variable;
+    struct r_logic_sentence *dup = NULL, *next_dup, *iter_dup, *tmp;
     int rc;
 
-    CHECK_NULLARG3_RT(st, from, to, -1);
+    CHECK_NULLARG3_RT(st, from, to, NULL);
 
     ht = al_ht_str_new(sizeof(struct r_logic_sentence*), 0, 0);
-    CHECK_NOMEM_RT(ht, -1);
+    CHECK_NOMEM_RT(ht, NULL);
 
-    for (iter = from, iter2 = st; iter && iter2; iter = r_dfs_next(from, iter), iter2 = r_dfs_next(from, iter2)) {
-        if(iter->type == RB_VARIABLE) {
-            saved_variable = al_ht_getval(ht, &iter->data.name);
-            if(!saved_variable) {
-                rc = al_ht_put(ht, &iter->data.name, &iter2, NULL);
+    for (iter_from = from, iter_st = st; iter_from && iter_st; iter_from = r_dfs_next(from, iter_from), iter_st =
+            r_dfs_next(from, iter_st)) {
+        if (iter_from->type == RB_VARIABLE) {
+            saved_variable = al_ht_getval(ht, &iter_from->data.name);
+            if (!saved_variable) {
+                rc = al_ht_put(ht, &iter_from->data.name, &iter_st, NULL);
                 CHECK_INTERR_GOTO(rc, finish);
             } else {
-                rc = r_sentence_cmp(*saved_variable, iter2);
-                if(rc) {
+                CHECK_INTERR_GOTO(!(*saved_variable), finish);
+                rc = r_sentence_cmp(*saved_variable, iter_st);
+                if (rc) {
                     LOG_WRN("Failed to match sentence and rule.");
                     goto finish;
                 }
@@ -99,11 +102,30 @@ int r_convert(struct r_logic_sentence *st, const struct r_logic_sentence *from, 
         }
     }
 
-    //TODO
+    dup = r_sentence_dup(to);
+    CHECK_NOMEM_GOTO(dup, finish);
+
+    R_SENTENCE_FOR_SAFE(dup, next_dup, iter_dup) {
+        if (iter_dup->type == RB_VARIABLE) {
+            saved_variable = al_ht_getval(ht, &iter_dup->data.name);
+            if (!saved_variable) {
+                LOG_WRN("Variable '%s' in sentence 'to' does not be found in sentence 'from'.", iter_dup->data.name);
+                r_sentence_destroy(dup);
+                dup = NULL;
+                goto finish;
+            }
+            CHECK_INTERR_DO_GOTO(!(*saved_variable), r_sentence_destroy(dup);dup = NULL, finish);
+
+            tmp = r_sentence_dup(*saved_variable);
+            CHECK_NOMEM_DO_GOTO(tmp, r_sentence_destroy(dup);dup = NULL, finish);
+
+            *iter_dup = *tmp;
+            free(tmp);
+        }
+    }
 
     finish:
     al_ht_clear(ht);
-
-    return rc;
+    return dup;
 }
 
