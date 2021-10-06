@@ -63,6 +63,9 @@ static struct r_logic_sentence* parser_init_two_operands(R_SENTENCE_TYPE type, s
     stc->data.two[0] = l;
     stc->data.two[1] = r;
 
+    l->parent = stc;
+    r->parent = stc;
+
     return stc;
 }
 
@@ -87,6 +90,8 @@ struct r_logic_sentence* parser_init_not(struct r_logic_sentence *tgt) {
 
     stc->type = RB_NOT;
     stc->data.one = tgt;
+
+    tgt->parent = stc;
 
     return stc;
 }

@@ -124,3 +124,56 @@ void r_sentence_destroy(struct r_logic_sentence *sentence) {
     free(sentence);
 }
 
+const struct r_logic_sentence* r_dfs_next(const struct r_logic_sentence *root, const struct r_logic_sentence *st) {
+    const struct r_logic_sentence *parent;
+
+    if (st->type == RB_AND || st->type == RB_OR) {
+        return st->data.two[0];
+    }
+    if (st->type == RB_NOT) {
+        return st->data.one;
+    }
+
+    for (parent = st->parent; parent; st = parent, parent = parent->parent) {
+        if (st == root) {
+            return NULL;
+        }
+        if (parent->type == RB_AND || parent->type == RB_OR) {
+            if (st == parent->data.two[0]) {
+                return parent->data.two[1];
+            }
+        }
+    }
+
+    return NULL;
+}
+
+int r_sentence_cmp(const struct r_logic_sentence *st1, const struct r_logic_sentence *st2) {
+    if (st1 == st2) {
+        return 0;
+    }
+
+    if (!st1 || !st2) {
+        return 1;
+    }
+
+    if (st1->type != st2->type) {
+        return 1;
+    }
+
+    switch(st1->type) {
+    case RB_NOT:
+        return r_sentence_cmp(st1->data.one, st2->data.one);
+    case RB_AND:
+    case RB_OR:
+        return r_sentence_cmp(st1->data.two[0], st2->data.two[0]) || r_sentence_cmp(st1->data.two[1], st2->data.two[1]);
+    case RB_VALUE:
+        return st1->data.value == st2->data.value;
+    case RB_VARIABLE:
+        return strcmp(st1->data.name, st2->data.name);
+    default:
+        LOG_ERR("unlikely!");
+        return  -1;
+    }
+}
+

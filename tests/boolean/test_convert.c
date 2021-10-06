@@ -24,6 +24,29 @@ void tearDown(void) {
 }
 
 static void test_not_not() {
+    struct r_logic_sentence *st, *from, *to;
+
+    from = r_sentence_parse("!!A", NULL);
+    TEST_ASSERT_NOT_NULL(from);
+
+    to = r_sentence_parse("A", NULL);
+    TEST_ASSERT_NOT_NULL(to);
+
+    st = r_sentence_parse("!!B", NULL);
+    TEST_ASSERT_NOT_NULL(st);
+
+    int rc = r_convert(st, from, to, NULL);
+    TEST_ASSERT_EQUAL(0, rc);
+
+    char *str = NULL;
+    rc = r_sentence_print(&str, st);
+    TEST_ASSERT_EQUAL(0, rc);
+
+    TEST_ASSERT_EQUAL_STRING("B", str);
+
+    r_sentence_destroy(st);
+    r_sentence_destroy(from);
+    r_sentence_destroy(to);
 }
 
 int main() {

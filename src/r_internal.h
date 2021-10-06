@@ -22,6 +22,7 @@ void r_log(const char *level, const char *file, int line, const char *fmt, ...) 
 
 struct r_logic_sentence {
     R_SENTENCE_TYPE type;
+    struct r_logic_sentence *parent;
 
     union {
         struct r_logic_sentence *two[2];
