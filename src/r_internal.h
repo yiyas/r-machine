@@ -18,6 +18,8 @@
 #define LOG_WRN(fmt, args...) r_log("WRN", __FILE__, __LINE__, fmt, ##args)
 #define LOG_ERR(fmt, args...) r_log("ERR", __FILE__, __LINE__, fmt, ##args)
 
+#define LOG_UNLIKELY()  LOG_ERR("Unlikely branch!")
+
 void r_log(const char *level, const char *file, int line, const char *fmt, ...) __attribute__((format(printf, 4, 5)));
 
 struct r_logic_sentence {
@@ -32,5 +34,6 @@ struct r_logic_sentence {
     } data;
 };
 
+int st_type_get_operand_count(R_SENTENCE_TYPE type);
 
 #endif /* R_INTERNAL_H_ */

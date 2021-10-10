@@ -26,11 +26,16 @@
 "true"  { yylval->bool = RB_TRUE; return BOOLEAN; }
 "false" { yylval->bool = RB_FALSE; return BOOLEAN; }
 
+"!" { return NOT; }
 "and" { return AND; }
 "or" { return OR; }
-"!" { return NOT; }
+"xor" { return XOR; }
+"<=>" { return IFF; }
+"=>" { return IF; }
 
 [A-Za-z][A-Za-z0-9]*  { yylval->string = yytext; return NAME; }
+
+[[:space:]]+   {}
 
 %%
 

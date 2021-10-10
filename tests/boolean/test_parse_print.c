@@ -64,7 +64,7 @@ static void test_not() {
     parse_and_print_eq("!A", "!A");
 }
 
-static void test_mix() {
+static void test_mix_and_or_not() {
     parse_and_print_eq("A and B and C and D", "A and B and C and D");
     parse_and_print_eq("(A or B) and C and D", "(A or B) and C and D");
     parse_and_print_eq("(A and B) and (C and D)", "A and B and (C and D)");
@@ -83,12 +83,33 @@ static void test_mix() {
     parse_and_print_eq("!(!A)", "!!A");
 }
 
+static void test_xor() {
+    parse_and_print_eq("true xor false", "true xor false");
+    parse_and_print_eq("false xor A", "false xor A");
+    parse_and_print_eq("A xor BX", "A xor BX");
+}
+
+static void test_if() {
+    parse_and_print_eq("true => false", "true => false");
+    parse_and_print_eq("false => A", "false => A");
+    parse_and_print_eq("A => BX", "A => BX");
+}
+
+static void test_iff() {
+    parse_and_print_eq("true <=> false", "true <=> false");
+    parse_and_print_eq("false <=> A", "false <=> A");
+    parse_and_print_eq("A <=> BX", "A <=> BX");
+}
+
 int main() {
     UNITY_BEGIN();
     RUN_TEST(test_single_operator);
     RUN_TEST(test_and);
     RUN_TEST(test_or);
     RUN_TEST(test_not);
-    RUN_TEST(test_mix);
+    RUN_TEST(test_mix_and_or_not);
+    RUN_TEST(test_xor);
+    RUN_TEST(test_if);
+    RUN_TEST(test_iff);
     return UNITY_END();
 }

@@ -96,32 +96,18 @@ static int find_variables(const struct r_logic_sentence *st, const struct r_logi
             return 1;
         }
 
-        switch (from->type) {
-        case RB_AND:
-        case RB_OR:
-            rc = find_variables(st->data.two[0], from->data.two[0], ht);
-            if (rc) {
-                return 1;
-            }
-            rc = find_variables(st->data.two[1], from->data.two[1], ht);
-            if (rc) {
-                return 1;
-            }
-            break;
-        case RB_NOT:
+        if (st_type_get_operand_count(from->type) == 2) {
+            rc = find_variables(st->data.two[0], from->data.two[0], ht)
+                    || find_variables(st->data.two[1], from->data.two[1], ht);
+            return rc ? 1 : 0;
+        } else if (st_type_get_operand_count(from->type) == 1) {
             rc = find_variables(st->data.one, from->data.one, ht);
-            if (rc) {
-                return 1;
-            }
-            break;
-        case RB_VALUE:
-            if (st->data.value != from->data.value) {
-                return 1;
-            }
-            break;
-        default:
-            LOG_ERR("Unlikely!");
-            break;
+            return rc ? 1 : 0;
+        } else if (from->type == RB_VALUE) {
+            return st->data.value == from->data.value ? 0 : 1;
+        } else {
+            LOG_UNLIKELY();
+            return -1;
         }
     }
 
@@ -141,7 +127,7 @@ struct r_logic_sentence* r_convert(const struct r_logic_sentence *st, const stru
     CHECK_NOMEM_RT(ht, NULL);
 
     rc = find_variables(st, from, ht);
-    if(rc) {
+    if (rc) {
         LOG_WRN("Failed to match sentence and rule.");
         goto finish;
     }

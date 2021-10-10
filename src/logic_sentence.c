@@ -15,8 +15,45 @@
 #include "parser/parser_bison.h"
 #include "parser/parser_flex.h"
 
-#define is_left_operand_need_backets(t, st) (st->type <= t ? 0 : 1)
-#define is_right_operand_need_backets(t, st) (st->type < t ? 0 : 1)
+#define is_left_operand_need_backets(t, st) (st_type_get_priority(st->type) <= st_type_get_priority(t) ? 0 : 1)
+#define is_right_operand_need_backets(t, st) (st_type_get_priority(st->type) < st_type_get_priority(t) ? 0 : 1)
+
+inline int st_type_get_operand_count(R_SENTENCE_TYPE type) {
+    if (type == RB_NOT) {
+        return 1;
+    } else if (type > RB_NOT) {
+        return 2;
+    } else {
+        return 0;
+    }
+}
+
+inline static int st_type_get_priority(R_SENTENCE_TYPE type) {
+    if (type == RB_XOR) {
+        return RB_OR;
+    }
+
+    return type;
+}
+
+inline static const char* st_type_get_name(R_SENTENCE_TYPE type) {
+    switch(type) {
+    case RB_NOT:
+        return "!";
+    case RB_AND:
+        return "and";
+    case RB_OR:
+        return "or";
+    case RB_XOR:
+        return "xor";
+    case RB_IF:
+        return "=>";
+    case RB_IFF:
+        return "<=>";
+    default:
+        return "";
+    }
+}
 
 static int print_two_operands(char **str, R_SENTENCE_TYPE type, const struct r_logic_sentence *l,
         const struct r_logic_sentence *r) {
@@ -33,13 +70,13 @@ static int print_two_operands(char **str, R_SENTENCE_TYPE type, const struct r_l
     }
 
     if (is_left_operand_need_backets(type, l) && is_right_operand_need_backets(type, r)) {
-        rc = asprintf(str, "(%s) %s (%s)", lstr, (type == RB_AND ? "and" : "or"), rstr);
+        rc = asprintf(str, "(%s) %s (%s)", lstr, st_type_get_name(type), rstr);
     } else if (is_left_operand_need_backets(type, l)) {
-        rc = asprintf(str, "(%s) %s %s", lstr, (type == RB_AND ? "and" : "or"), rstr);
+        rc = asprintf(str, "(%s) %s %s", lstr, st_type_get_name(type), rstr);
     } else if (is_right_operand_need_backets(type, r)) {
-        rc = asprintf(str, "%s %s (%s)", lstr, (type == RB_AND ? "and" : "or"), rstr);
+        rc = asprintf(str, "%s %s (%s)", lstr, st_type_get_name(type), rstr);
     } else {
-        rc = asprintf(str, "%s %s %s", lstr, (type == RB_AND ? "and" : "or"), rstr);
+        rc = asprintf(str, "%s %s %s", lstr, st_type_get_name(type), rstr);
     }
     free(lstr);
     free(rstr);
@@ -84,16 +121,15 @@ int r_sentence_print(char **str, const struct r_logic_sentence *sentence) {
         *str = strdup(sentence->data.name);
         rc = (*str == NULL ? 1 : 0);
         break;
-    case RB_AND:
-    case RB_OR:
-        rc = print_two_operands(str, sentence->type, sentence->data.two[0], sentence->data.two[1]);
-        break;
-    case RB_NOT:
-        rc = print_one_operand(str, sentence->type, sentence->data.one);
-        break;
     default:
-        LOG_ERR("unlikely branch!");
-        rc = -1;
+        if(st_type_get_operand_count(sentence->type) == 2) {
+            rc = print_two_operands(str, sentence->type, sentence->data.two[0], sentence->data.two[1]);
+        } else if (st_type_get_operand_count(sentence->type) == 1) {
+            rc = print_one_operand(str, sentence->type, sentence->data.one);
+        } else {
+            LOG_UNLIKELY();
+            rc = -1;
+        }
         break;
     }
 
@@ -105,20 +141,13 @@ void r_sentence_destroy(struct r_logic_sentence *sentence) {
         return;
     }
 
-    switch (sentence->type) {
-    case RB_VARIABLE:
-        al_dict_remove(sentence->data.name);
-        break;
-    case RB_AND:
-    case RB_OR:
+    if (st_type_get_operand_count(sentence->type) == 2) {
         r_sentence_destroy(sentence->data.two[0]);
         r_sentence_destroy(sentence->data.two[1]);
-        break;
-    case RB_NOT:
+    } else if (st_type_get_operand_count(sentence->type) == 1) {
         r_sentence_destroy(sentence->data.one);
-        break;
-    default:
-        break;
+    } else if (sentence->type == RB_VARIABLE) {
+        al_dict_remove(sentence->data.name);
     }
 
     free(sentence);
@@ -127,10 +156,10 @@ void r_sentence_destroy(struct r_logic_sentence *sentence) {
 const struct r_logic_sentence* r_dfs_next(const struct r_logic_sentence *root, const struct r_logic_sentence *st) {
     const struct r_logic_sentence *parent;
 
-    if (st->type == RB_AND || st->type == RB_OR) {
+    if (st_type_get_operand_count(st->type) == 2) {
         return st->data.two[0];
     }
-    if (st->type == RB_NOT) {
+    if (st_type_get_operand_count(st->type) == 1) {
         return st->data.one;
     }
 
@@ -138,7 +167,7 @@ const struct r_logic_sentence* r_dfs_next(const struct r_logic_sentence *root, c
         if (st == root) {
             return NULL;
         }
-        if (parent->type == RB_AND || parent->type == RB_OR) {
+        if (st_type_get_operand_count(parent->type) == 2) {
             if (st == parent->data.two[0]) {
                 return parent->data.two[1];
             }
@@ -162,18 +191,20 @@ int r_sentence_cmp(const struct r_logic_sentence *st1, const struct r_logic_sent
     }
 
     switch (st1->type) {
-    case RB_NOT:
-        return r_sentence_cmp(st1->data.one, st2->data.one);
-    case RB_AND:
-    case RB_OR:
-        return r_sentence_cmp(st1->data.two[0], st2->data.two[0]) || r_sentence_cmp(st1->data.two[1], st2->data.two[1]);
     case RB_VALUE:
         return st1->data.value == st2->data.value;
     case RB_VARIABLE:
         return strcmp(st1->data.name, st2->data.name);
     default:
-        LOG_ERR("unlikely!");
-        return -1;
+        if (st_type_get_operand_count(st1->type) == 2) {
+            return r_sentence_cmp(st1->data.two[0], st2->data.two[0])
+                    || r_sentence_cmp(st1->data.two[1], st2->data.two[1]);
+        } else if (st_type_get_operand_count(st1->type) == 1) {
+            return r_sentence_cmp(st1->data.one, st2->data.one);
+        } else {
+            LOG_UNLIKELY();
+            return -1;
+        }
     }
 }
 
@@ -191,7 +222,7 @@ struct r_logic_sentence* r_sentence_dup(const struct r_logic_sentence *st) {
 
     dup->parent = NULL;
 
-    if (dup->type == RB_AND || dup->type == RB_OR) {
+    if (st_type_get_operand_count(dup->type) == 2) {
         dup->data.two[0] = r_sentence_dup(st->data.two[0]);
         if (!dup->data.two[0]) {
             goto error;
@@ -203,7 +234,7 @@ struct r_logic_sentence* r_sentence_dup(const struct r_logic_sentence *st) {
             goto error;
         }
         dup->data.two[1]->parent = dup;
-    } else if (dup->type == RB_NOT) {
+    } else if (st_type_get_operand_count(dup->type) == 1) {
         dup->data.one = r_sentence_dup(st->data.one);
         if (!dup->data.one) {
             goto error;

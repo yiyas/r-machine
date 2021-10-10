@@ -20,8 +20,10 @@ struct r_logic_sentence* parser_init_bool(R_BOOLEAN v);
 struct r_logic_sentence* parser_init_variable(const char *name);
 
 struct r_logic_sentence* parser_init_and(struct r_logic_sentence *l, struct r_logic_sentence *r);
-
 struct r_logic_sentence* parser_init_or(struct r_logic_sentence *l, struct r_logic_sentence *r);
+struct r_logic_sentence* parser_init_xor(struct r_logic_sentence *l, struct r_logic_sentence *r);
+struct r_logic_sentence* parser_init_if(struct r_logic_sentence *l, struct r_logic_sentence *r);
+struct r_logic_sentence* parser_init_iff(struct r_logic_sentence *l, struct r_logic_sentence *r);
 
 struct r_logic_sentence* parser_init_not(struct r_logic_sentence *tgt);
 

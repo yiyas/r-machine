@@ -32,9 +32,13 @@ static void yyerror(YYLTYPE *yyl, void *scanner, struct r_logic_sentence **stc, 
 %token <string> NAME
 %token NOT
 %token AND
-%token OR
+%token OR XOR
+%token IFF
+%token IF
 
-%left OR
+%left IF
+%left IFF
+%left OR XOR
 %left AND
 %right NOT
 
@@ -50,7 +54,10 @@ logic_expression: BOOLEAN { $$ = parser_init_bool($1); }
   |NAME { $$ = parser_init_variable($1); }
   |'(' logic_expression ')' { $$ = $2; }
   |logic_expression AND logic_expression { $$ = parser_init_and($1, $3); }
-  |logic_expression OR logic_expression { $$ = parser_init_or($1, $3); }
+  |logic_expression OR  logic_expression { $$ = parser_init_or($1, $3); }
+  |logic_expression XOR logic_expression { $$ = parser_init_xor($1, $3); }
+  |logic_expression IF  logic_expression { $$ = parser_init_if($1, $3); }
+  |logic_expression IFF logic_expression { $$ = parser_init_iff($1, $3); }
   |NOT logic_expression { $$ = parser_init_not($2); }
   
   

@@ -72,7 +72,6 @@ static void test_combination_law() {
 static void test_double_negation_elimination() {
     assert_convert_succ("!!A", "A", "!!B", "B");
     assert_convert_succ("!!A", "A", "!!(A and B)", "A and B");
-    assert_convert_succ("!!A", "A", "!!!X", "!X");
     assert_convert_succ("!!A", "A", "!!false", "false");
 }
 
@@ -92,6 +91,20 @@ static void test_distributive_law() {
     assert_convert_succ("(A or B) and (A or C)", "A or (B and C)", "((a or c) or x) and ((a or c) or (x and y))", "a or c or x and (x and y)");
 }
 
+static void test_xor_define() {
+    assert_convert_succ("A xor B", "(A and !B) or (!A and B)", "x xor y", "x and !y or !x and y");
+    assert_convert_succ("(A and !B) or (!A and B)", "A xor B", "x and !y or !x and y", "x xor y");
+}
+
+static void test_if_define() {
+    assert_convert_succ("A=>B", "!A or B", "x=>y", "!x or y");
+    assert_convert_succ("!A or B", "A=>B", "!x or y", "x => y");
+}
+
+static void test_iff_define() {
+    assert_convert_succ("A<=>B", "A=>B and B=>A", "x<=>y", "x => y and y => x");
+    assert_convert_succ("A=>B and B=>A", "A<=>B", "x=>y and y=>x", "x <=> y");
+}
 
 int main() {
     UNITY_BEGIN();
@@ -100,5 +113,8 @@ int main() {
     RUN_TEST(test_double_negation_elimination);
     RUN_TEST(test_de_morgan_law);
     RUN_TEST(test_distributive_law);
+    RUN_TEST(test_xor_define);
+    RUN_TEST(test_if_define);
+    RUN_TEST(test_iff_define);
     return UNITY_END();
 }

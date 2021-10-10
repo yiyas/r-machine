@@ -53,7 +53,10 @@ extern int yydebug;
     NAME = 259,
     NOT = 260,
     AND = 261,
-    OR = 262
+    OR = 262,
+    XOR = 263,
+    IFF = 264,
+    IF = 265
   };
 #endif
 

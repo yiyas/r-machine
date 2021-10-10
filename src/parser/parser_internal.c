@@ -77,6 +77,18 @@ struct r_logic_sentence* parser_init_or(struct r_logic_sentence *l, struct r_log
     return parser_init_two_operands(RB_OR, l, r);
 }
 
+struct r_logic_sentence* parser_init_xor(struct r_logic_sentence *l, struct r_logic_sentence *r) {
+    return parser_init_two_operands(RB_XOR, l, r);
+}
+
+struct r_logic_sentence* parser_init_if(struct r_logic_sentence *l, struct r_logic_sentence *r) {
+    return parser_init_two_operands(RB_IF, l, r);
+}
+
+struct r_logic_sentence* parser_init_iff(struct r_logic_sentence *l, struct r_logic_sentence *r) {
+    return parser_init_two_operands(RB_IFF, l, r);
+}
+
 struct r_logic_sentence* parser_init_not(struct r_logic_sentence *tgt) {
     struct r_logic_sentence *stc = NULL;
 
