@@ -52,6 +52,23 @@ static void assert_convert_succ(const char *from, const char *to, const char *or
     r_sentence_destroy(rlt_st);
 }
 
+static void test_commutative_law() {
+    assert_convert_succ("A and B", "B and A", "x and true", "true and x");
+    assert_convert_succ("A and B", "B and A", "x and (y or z)", "(y or z) and x");
+
+    assert_convert_succ("A or B", "B or A", "x or true", "true or x");
+    assert_convert_succ("A or B", "B or A", "x or (y or z)", "y or z or x");
+}
+
+static void test_combination_law() {
+    assert_convert_succ("A and B and C", "A and (B and C)", "x and y and z", "x and (y and z)");
+    assert_convert_succ("A and B and C", "A and (B and C)", "(x or x) and y and z", "(x or x) and (y and z)");
+
+    assert_convert_succ("A or B or C", "A or (B or C)", "x or y or z", "x or (y or z)");
+    assert_convert_succ("A or B or C", "A or (B or C)", "(x and x) or y or z", "x and x or (y or z)");
+
+}
+
 static void test_double_negation_elimination() {
     assert_convert_succ("!!A", "A", "!!B", "B");
     assert_convert_succ("!!A", "A", "!!(A and B)", "A and B");
@@ -78,6 +95,8 @@ static void test_distributive_law() {
 
 int main() {
     UNITY_BEGIN();
+    RUN_TEST(test_commutative_law);
+    RUN_TEST(test_combination_law);
     RUN_TEST(test_double_negation_elimination);
     RUN_TEST(test_de_morgan_law);
     RUN_TEST(test_distributive_law);
