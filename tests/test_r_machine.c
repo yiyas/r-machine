@@ -10,8 +10,9 @@
 #include <stddef.h>
 #include <string.h>
 
+#include <r_machine.h>
+
 #include "unity/unity.h"
-#include "r_machine.h"
 
 void setUp(void) {
 }
@@ -19,11 +20,11 @@ void setUp(void) {
 void tearDown(void) {
 }
 
-static void test_tt_entail() {
+static void test_case1() {
 }
 
 int main() {
     UNITY_BEGIN();
-    RUN_TEST(test_tt_entail);
+    RUN_TEST(test_case1);
     return UNITY_END();
 }

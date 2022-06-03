@@ -13,18 +13,28 @@
 
 #include <r_machine.h>
 
-void parser_error(int line, int col, char const *msg);
+struct rp_error {
+    int line;
+    int col;
+    const char *msg;
+};
 
-struct r_logic_sentence* parser_init_bool(R_BOOLEAN v);
+struct rp_param {
+    void *p;
+    struct r_expression *expr;
 
-struct r_logic_sentence* parser_init_variable(const char *name);
+    struct rp_error err;
+};
 
-struct r_logic_sentence* parser_init_and(struct r_logic_sentence *l, struct r_logic_sentence *r);
-struct r_logic_sentence* parser_init_or(struct r_logic_sentence *l, struct r_logic_sentence *r);
-struct r_logic_sentence* parser_init_xor(struct r_logic_sentence *l, struct r_logic_sentence *r);
-struct r_logic_sentence* parser_init_if(struct r_logic_sentence *l, struct r_logic_sentence *r);
-struct r_logic_sentence* parser_init_iff(struct r_logic_sentence *l, struct r_logic_sentence *r);
+void rp_error(struct rp_param *param, int line, int col, char const *msg);
 
-struct r_logic_sentence* parser_init_not(struct r_logic_sentence *tgt);
+struct r_expression* rp_new_expr_def(struct r_definition *def);
+struct r_expression* rp_new_expr_stmt(struct r_statment *stmt);
+
+struct r_definition* rp_new_def(const char *name);
+struct r_definition* rp_new_def2(const char *name, const char *type);
+struct r_definition* rp_new_def3(const char *name, const char *from, const char *to);
+
+struct r_statment* rp_new_stmt(const char *name, const char *name2);
 
 #endif /* PARSER_INTERNAL_H_ */

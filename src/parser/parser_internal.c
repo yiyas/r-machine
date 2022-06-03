@@ -10,100 +10,67 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include <libal/pub.h>
 #include <libal/dict.h>
 
 #include "../r_internal.h"
 #include "parser_internal.h"
 
-void parser_error(int line, int col, char const *msg) {
-    r_log("ERR", "bison_flex", line, "Error occurred at column %d: %s\n", col, msg);
+void rp_error(struct rp_param *param, int line, int col, char const *msg) {
+    param->err.line = line;
+    param->err.col = col;
+    param->err.msg = al_dict_add(msg);
 }
 
-struct r_logic_sentence* parser_init_bool(R_BOOLEAN v) {
-    struct r_logic_sentence *stc = NULL;
+struct r_expression* rp_new_expr_def(struct r_definition *def) {
+    struct r_expression *expr = NULL;
 
-    stc = calloc(1, sizeof(*stc));
-    CHECK_NOMEM_RT(stc, NULL);
+    expr = calloc(1, sizeof(*expr));
+    CHECK_NOMEM_RT(expr, NULL);
 
-    stc->type = RB_VALUE;
-    stc->data.value = v;
+    expr->type = R_DEF;
+    expr->data.def =def;
 
-    return stc;
+    return expr;
 }
 
-struct r_logic_sentence* parser_init_variable(const char *name) {
-    struct r_logic_sentence *stc = NULL;
+struct r_expression* rp_new_expr_stmt(struct r_statment *stmt) {
+    struct r_expression *expr = NULL;
 
-    stc = calloc(1, sizeof(*stc));
-    CHECK_NOMEM_RT(stc, NULL);
+    expr = calloc(1, sizeof(*expr));
+    CHECK_NOMEM_RT(expr, NULL);
 
-    stc->type = RB_VARIABLE;
-    stc->data.name = al_dict_add(name);
-    CHECK_NOMEM_DO_RT(stc->data.name, free(stc), NULL);
+    expr->type = R_STMT;
+    expr->data.stmt =stmt;
 
-    return stc;
+    return expr;
 }
 
-static struct r_logic_sentence* parser_init_two_operands(R_SENTENCE_TYPE type, struct r_logic_sentence *l,
-        struct r_logic_sentence *r) {
-    struct r_logic_sentence *stc = NULL;
+struct r_definition* rp_new_def(const char *name) {
+    struct r_definition *def = NULL;
 
-    if (!l || !r) {
-        LOG_ERR("Failed to create '%s' sentence due to previous error.", type == RB_AND ? "AND" : "OR");
-        r_sentence_destroy(l);
-        r_sentence_destroy(r);
-        return NULL;
-    }
+    def = calloc(1, sizeof(*def));
+    CHECK_NOMEM_RT(def, NULL);
 
-    stc = calloc(1, sizeof(*stc));
-    CHECK_NOMEM_RT(stc, NULL);
+    def->name = al_dict_add(name);
 
-    stc->type = type;
-    stc->data.two[0] = l;
-    stc->data.two[1] = r;
-
-    l->parent = stc;
-    r->parent = stc;
-
-    return stc;
+    return def;
 }
 
-struct r_logic_sentence* parser_init_and(struct r_logic_sentence *l, struct r_logic_sentence *r) {
-    return parser_init_two_operands(RB_AND, l, r);
+struct r_definition* rp_new_def2(const char *name, const char *UNUSED(type)) {
+    return rp_new_def(name);
 }
 
-struct r_logic_sentence* parser_init_or(struct r_logic_sentence *l, struct r_logic_sentence *r) {
-    return parser_init_two_operands(RB_OR, l, r);
+struct r_definition* rp_new_def3(const char *name, const char *UNUSED(from), const char *UNUSED(to)) {
+    return rp_new_def(name);
 }
 
-struct r_logic_sentence* parser_init_xor(struct r_logic_sentence *l, struct r_logic_sentence *r) {
-    return parser_init_two_operands(RB_XOR, l, r);
-}
+struct r_statment* rp_new_stmt(const char *name, const char *UNUSED(name2)) {
+    struct r_statment *stmt = NULL;
 
-struct r_logic_sentence* parser_init_if(struct r_logic_sentence *l, struct r_logic_sentence *r) {
-    return parser_init_two_operands(RB_IF, l, r);
-}
+    stmt = calloc(1, sizeof(*stmt));
+    CHECK_NOMEM_RT(stmt, NULL);
 
-struct r_logic_sentence* parser_init_iff(struct r_logic_sentence *l, struct r_logic_sentence *r) {
-    return parser_init_two_operands(RB_IFF, l, r);
-}
+    stmt->name = al_dict_add(name);
 
-struct r_logic_sentence* parser_init_not(struct r_logic_sentence *tgt) {
-    struct r_logic_sentence *stc = NULL;
-
-    if (!tgt) {
-        LOG_ERR("Failed to create 'NOT' sentence due to previous error.");
-        return NULL;
-    }
-
-    stc = calloc(1, sizeof(*stc));
-    CHECK_NOMEM_RT(stc, NULL);
-
-    stc->type = RB_NOT;
-    stc->data.one = tgt;
-
-    tgt->parent = stc;
-
-    return stc;
+    return stmt;
 }

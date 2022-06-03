@@ -49,14 +49,12 @@ extern int yydebug;
 # define YYTOKENTYPE
   enum yytokentype
   {
-    BOOLEAN = 258,
-    NAME = 259,
-    NOT = 260,
-    AND = 261,
-    OR = 262,
-    XOR = 263,
-    IFF = 264,
-    IF = 265
+    NAME = 258,
+    DOUBLE_COLON = 259,
+    COLON_EQUAL = 260,
+    ARROW = 261,
+    SPACE = 262,
+    UNEXPECTED_CHAR = 263
   };
 #endif
 
@@ -65,9 +63,9 @@ extern int yydebug;
 union YYSTYPE
 {
 
-    R_BOOLEAN bool;
     const char *string;
-    struct r_logic_sentence *expr;
+    struct r_definition *def;
+    struct r_statment *stmt;
 
 
 };
@@ -92,6 +90,6 @@ struct YYLTYPE
 
 
 
-int yyparse (void * scanner, struct r_logic_sentence **stc);
+int yyparse (void * scanner, struct rp_param *param);
 
 #endif /* !YY_YY_PARSER_BISON_H_INCLUDED  */

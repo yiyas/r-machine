@@ -13,59 +13,69 @@
 #include "parser_bison.h"
 #include "parser_flex.h"
 
-static void yyerror(YYLTYPE *yyl, void *scanner, struct r_logic_sentence **stc, char const *msg);
+static void yyerror(YYLTYPE *yyl, void *scanner, struct rp_param *param, char const *msg);
 %}
 
 %define api.pure full
 %locations
 
 %lex-param {void * scanner}
-%parse-param {void * scanner} {struct r_logic_sentence **stc}
+%parse-param {void * scanner} {struct rp_param *param}
 
 %union{
-    R_BOOLEAN bool;
     const char *string;
-    struct r_logic_sentence *expr;
+    struct r_definition *def;
+    struct r_statment *stmt;
 }
 
-%token <bool> BOOLEAN
 %token <string> NAME
-%token NOT
-%token AND
-%token OR XOR
-%token IFF
-%token IF
+%token DOUBLE_COLON
+%token COLON_EQUAL
+%token ARROW
+%token SPACE
+%token UNEXPECTED_CHAR
 
-%left IF
-%left IFF
-%left OR XOR
-%left AND
-%right NOT
-
-%type <expr> logic_expression
+%type <def> definition
+%type <stmt> statment
+%type <def> simple_definition
+%type <def> two_colon_definition
+%type <def> arrow_definition
 
 %start r_expression
 
 %%
-r_expression: 
-  logic_expression { *stc = $1; }
+r_expression: definition { param->expr = rp_new_expr_def($1); }
+  |statment { param->expr = rp_new_expr_stmt($1); }
+;
 
-logic_expression: BOOLEAN { $$ = parser_init_bool($1); }
-  |NAME { $$ = parser_init_variable($1); }
-  |'(' logic_expression ')' { $$ = $2; }
-  |logic_expression AND logic_expression { $$ = parser_init_and($1, $3); }
-  |logic_expression OR  logic_expression { $$ = parser_init_or($1, $3); }
-  |logic_expression XOR logic_expression { $$ = parser_init_xor($1, $3); }
-  |logic_expression IF  logic_expression { $$ = parser_init_if($1, $3); }
-  |logic_expression IFF logic_expression { $$ = parser_init_iff($1, $3); }
-  |NOT logic_expression { $$ = parser_init_not($2); }
-  
-  
-  
+definition: simple_definition { $$ = $1; }
+  |two_colon_definition { $$ = $1; }
+  |arrow_definition { $$ = $1; }
+;
+
+simple_definition: NAME {
+    $$ = rp_new_def($1);
+}
+;
+
+two_colon_definition: NAME DOUBLE_COLON NAME {
+    $$ = rp_new_def2($1, $3);
+}
+;
+
+arrow_definition: NAME COLON_EQUAL NAME ARROW NAME {
+    $$ = rp_new_def3($1, $3, $5);
+}
+;
+
+statment: NAME SPACE NAME {
+    $$ = rp_new_stmt($1, $3);
+}
+;
+
 %%
 
-static void yyerror(YYLTYPE *yyl, void *scanner, struct r_logic_sentence **stc, char const *msg) {
+static void yyerror(YYLTYPE *yyl, void *scanner, struct rp_param *param, char const *msg) {
     (void) scanner;
-    (void) stc;
-    parser_error(yyl->first_line, yyl->first_column, msg);
+    rp_error(param, yyl->first_line, yyl->first_column, msg);
 }

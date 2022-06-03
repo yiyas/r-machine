@@ -23,19 +23,17 @@
 "{" |
 "}"     { return yytext[0]; }
 
-"true"  { yylval->bool = RB_TRUE; return BOOLEAN; }
-"false" { yylval->bool = RB_FALSE; return BOOLEAN; }
+"::" { return DOUBLE_COLON; }
 
-"!" { return NOT; }
-"and" { return AND; }
-"or" { return OR; }
-"xor" { return XOR; }
-"<=>" { return IFF; }
-"=>" { return IF; }
+":=" { return COLON_EQUAL; }
+
+"->" { return ARROW; }
 
 [A-Za-z][A-Za-z0-9]*  { yylval->string = yytext; return NAME; }
 
-[[:space:]]+   {}
+[[:space:]]+   { return SPACE; }
+
+. {return UNEXPECTED_CHAR; }
 
 %%
 
