@@ -35,42 +35,46 @@ static void yyerror(YYLTYPE *yyl, void *scanner, struct rp_param *param, char co
 %token SPACE
 %token UNEXPECTED_CHAR
 
+%type <string> list_exp
+%type <string> finite_set_exp
+%type <string> set_exp
+
 %type <def> definition
 %type <stmt> statment
 %type <def> simple_definition
-%type <def> two_colon_definition
-%type <def> arrow_definition
+%type <def> set_definition
+%type <def> func_definition
 
 %start r_expression
 
 %%
+list_exp: NAME { }
+	| list_exp ',' NAME { }
+
+finite_set_exp: '{' list_exp '}' {  }
+
+set_exp: NAME
+	|'{' list_exp '}' {  }
+
 r_expression: definition { param->expr = rp_new_expr_def($1); }
   |statment { param->expr = rp_new_expr_stmt($1); }
 ;
 
 definition: simple_definition { $$ = $1; }
-  |two_colon_definition { $$ = $1; }
-  |arrow_definition { $$ = $1; }
+  |set_definition { $$ = $1; }
+  |func_definition { $$ = $1; }
 ;
 
-simple_definition: NAME {
-    $$ = rp_new_def($1);
-}
+simple_definition: NAME { $$ = rp_new_def($1); }
 ;
 
-two_colon_definition: NAME DOUBLE_COLON NAME {
-    $$ = rp_new_def2($1, $3);
-}
+set_definition: NAME COLON_EQUAL finite_set_exp { $$ = rp_new_def2($1, $3); }
 ;
 
-arrow_definition: NAME COLON_EQUAL NAME ARROW NAME {
-    $$ = rp_new_def3($1, $3, $5);
-}
+func_definition: NAME DOUBLE_COLON set_exp ARROW set_exp { $$ = rp_new_def3($1, $3, $5); }
 ;
 
-statment: NAME SPACE NAME {
-    $$ = rp_new_stmt($1, $3);
-}
+statment: NAME SPACE NAME { $$ = rp_new_stmt($1, $3); }
 ;
 
 %%

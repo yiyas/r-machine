@@ -8,7 +8,15 @@
  *     https://opensource.org/licenses/BSD-3-Clause
  */
 
-int main()
+#include <stdio.h>
+#include <stdlib.h>
+
+#define plog(fmt, ...) printf(fmt"\n", ##__VA_ARGS__)
+
+int main(int argc, char *argv[])
 {
+    plog("start");
+
+
     return 0;
 }

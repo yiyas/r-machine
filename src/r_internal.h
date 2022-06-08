@@ -13,7 +13,7 @@
 
 #include <r_machine.h>
 
-#  define UNUSED(x) UNUSED_##x __attribute__((__unused__))
+#define UNUSED(x)  UNUSED_##x __attribute__((__unused__))
 
 void r_log(const char *level, const char *file, int line, const char *fmt, ...) __attribute__((format(printf, 4, 5)));
 
@@ -29,6 +29,20 @@ void r_log(const char *level, const char *file, int line, const char *fmt, ...) 
     if (!(p)) {\
         LOG_NOMEM();\
         return (rt);\
+    }\
+} while(0)
+
+#define CHECK_UNLIKELY_RT(p, rt) do {\
+    if ((p)) {\
+        LOG_UNLIKELY();\
+        return (rt);\
+    }\
+} while(0)
+
+#define CHECK_UNLIKELY_GOTO(p, label) do {\
+    if ((p)) {\
+        LOG_UNLIKELY();\
+        goto label;\
     }\
 } while(0)
 

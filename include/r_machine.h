@@ -35,6 +35,8 @@ struct r_expression {
     } data;
 };
 
+struct r_expression* r_parse(const char *exp);
+
 #ifdef __cplusplus
 }
 #endif
