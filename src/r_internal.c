@@ -19,6 +19,7 @@ void r_log(const char *level, const char *file, int line, const char *fmt, ...) 
 
     printf("[%s] %s:%d ", level, file, line);
     vprintf(fmt, ap);
+    printf("\n");
 
     va_end(ap);
 }

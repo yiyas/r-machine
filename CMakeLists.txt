@@ -49,6 +49,11 @@ else()
         COMMAND bison -l -o parser_bison.c --defines=parser_bison.h parser.y
         COMMAND flex -8 -L -o parser_flex.c --header-file=parser_flex.h parser.l
     )
+    add_custom_target(bison_flex_debug
+        WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/src/parser
+        COMMAND bison --debug -l -o parser_bison.c --defines=parser_bison.h parser.y
+        COMMAND flex --debug -8 -L -o parser_flex.c --header-file=parser_flex.h parser.l
+    )
 endif()
 
 if(ENABLE_TESTS)

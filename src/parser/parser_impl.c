@@ -38,3 +38,8 @@ struct r_expression* r_parse(const char *expr) {
     yylex_destroy(scanner);
     return NULL;
 }
+
+void r_destroy(struct r_expression *exp)
+{
+    free(exp);
+}

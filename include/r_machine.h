@@ -24,18 +24,25 @@ struct r_statment {
     const char *name;
 };
 
+struct r_error {
+    const char *msg;
+};
+
 struct r_expression {
     enum {
-        R_DEF, R_STMT
+        R_DEF, R_STMT, R_ERR
     } type;
 
     union {
         struct r_definition *def;
         struct r_statment *stmt;
+        struct r_error *err;
     } data;
 };
 
-struct r_expression* r_parse(const char *exp);
+struct r_expression* r_parse(const char *expr);
+
+void r_destroy(struct r_expression *exp);
 
 #ifdef __cplusplus
 }

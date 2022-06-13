@@ -17,10 +17,10 @@
 
 void r_log(const char *level, const char *file, int line, const char *fmt, ...) __attribute__((format(printf, 4, 5)));
 
-#define LOG_DBG(fmt, args...) r_log("DBG", __FILE__, __LINE__, fmt, ##args)
-#define LOG_INF(fmt, args...) r_log("INF", __FILE__, __LINE__, fmt, ##args)
-#define LOG_WRN(fmt, args...) r_log("WRN", __FILE__, __LINE__, fmt, ##args)
-#define LOG_ERR(fmt, args...) r_log("ERR", __FILE__, __LINE__, fmt, ##args)
+#define LOG_DBG(fmt, args...) r_log("DBG", __FUNCTION__, __LINE__, fmt, ##args)
+#define LOG_INF(fmt, args...) r_log("INF", __FUNCTION__, __LINE__, fmt, ##args)
+#define LOG_WRN(fmt, args...) r_log("WRN", __FUNCTION__, __LINE__, fmt, ##args)
+#define LOG_ERR(fmt, args...) r_log("ERR", __FUNCTION__, __LINE__, fmt, ##args)
 
 #define LOG_UNLIKELY()  LOG_ERR("Unlikely branch at %s:%d", __FILE__, __LINE__)
 #define LOG_NOMEM()  LOG_ERR("No memory error occurred at %s:%d", __FILE__, __LINE__)

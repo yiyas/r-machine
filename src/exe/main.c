@@ -11,12 +11,29 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#define plog(fmt, ...) printf(fmt"\n", ##__VA_ARGS__)
+#include "../r_internal.h"
 
 int main(int argc, char *argv[])
 {
-    plog("start");
+    struct r_expression *exp = NULL;
 
+    if(argc != 2) {
+        LOG_ERR("Usage: %s <expression>", argv[0]);
+        return -1;
+    }
+
+    LOG_INF("Start");
+
+    exp = r_parse(argv[1]);
+    CHECK_UNLIKELY_RT(!exp, -1);
+
+    if(exp->type == R_ERR) {
+        LOG_INF("Failed to parse: %s, error: %s", argv[1], exp->data.err->msg);
+    } else {
+        LOG_INF("Succeeded to parse: %s", argv[1]);
+    }
+
+    r_destroy(exp);
 
     return 0;
 }

@@ -21,7 +21,7 @@
 "[" |
 "]" |
 "{" |
-"}"     { return yytext[0]; }
+"}"  { return yytext[0]; }
 
 "::" { return DOUBLE_COLON; }
 
