@@ -13,14 +13,14 @@
 #include "parser_bison.h"
 #include "parser_flex.h"
 
-static void yyerror(YYLTYPE *yyl, void *scanner, struct rp_param *param, char const *msg);
+static void yyerror(YYLTYPE *yyl, void *scanner, struct r_expression **exp, char const *msg);
 %}
 
 %define api.pure full
 %locations
 
 %lex-param {void * scanner}
-%parse-param {void * scanner} {struct rp_param *param}
+%parse-param {void * scanner} {struct r_expression **exp}
 
 %union{
     const char *string;
@@ -56,8 +56,8 @@ finite_set_exp: '{' list_exp '}' {  }
 set_exp: NAME
 	|'{' list_exp '}' {  }
 
-r_expression: definition { param->expr = rp_new_expr_def($1); }
-  |statment { param->expr = rp_new_expr_stmt($1); }
+r_expression: definition { *exp = rp_new_expr_def($1); }
+  |statment { *exp = rp_new_expr_stmt($1); }
 ;
 
 definition: simple_definition { $$ = $1; }
@@ -79,7 +79,7 @@ statment: NAME SPACE NAME { $$ = rp_new_stmt($1, $3); }
 
 %%
 
-static void yyerror(YYLTYPE *yyl, void *scanner, struct rp_param *param, char const *msg) {
+static void yyerror(YYLTYPE *yyl, void *scanner, struct r_expression **exp, char const *msg) {
     (void) scanner;
-    rp_error(param, yyl->first_line, yyl->first_column, msg);
+    rp_error(exp, yyl->first_line, yyl->first_column, msg);
 }

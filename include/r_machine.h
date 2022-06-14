@@ -36,7 +36,7 @@ struct r_expression {
     union {
         struct r_definition *def;
         struct r_statment *stmt;
-        struct r_error *err;
+        struct r_error err;
     } data;
 };
 

@@ -81,7 +81,7 @@
 #include "parser_bison.h"
 #include "parser_flex.h"
 
-static void yyerror(YYLTYPE *yyl, void *scanner, struct rp_param *param, char const *msg);
+static void yyerror(YYLTYPE *yyl, void *scanner, struct r_expression **exp, char const *msg);
 
 
 # ifndef YY_CAST
@@ -171,7 +171,7 @@ struct YYLTYPE
 
 
 
-int yyparse (void * scanner, struct rp_param *param);
+int yyparse (void * scanner, struct r_expression **exp);
 
 #endif /* !YY_YY_PARSER_BISON_H_INCLUDED  */
 
@@ -670,7 +670,7 @@ static const yytype_int8 yyr2[] =
       }                                                           \
     else                                                          \
       {                                                           \
-        yyerror (&yylloc, scanner, param, YY_("syntax error: cannot back up")); \
+        yyerror (&yylloc, scanner, exp, YY_("syntax error: cannot back up")); \
         YYERROR;                                                  \
       }                                                           \
   while (0)
@@ -772,7 +772,7 @@ do {                                                                      \
     {                                                                     \
       YYFPRINTF (stderr, "%s ", Title);                                   \
       yy_symbol_print (stderr,                                            \
-                  Type, Value, Location, scanner, param); \
+                  Type, Value, Location, scanner, exp); \
       YYFPRINTF (stderr, "\n");                                           \
     }                                                                     \
 } while (0)
@@ -783,13 +783,13 @@ do {                                                                      \
 `-----------------------------------*/
 
 static void
-yy_symbol_value_print (FILE *yyo, int yytype, YYSTYPE const * const yyvaluep, YYLTYPE const * const yylocationp, void * scanner, struct rp_param *param)
+yy_symbol_value_print (FILE *yyo, int yytype, YYSTYPE const * const yyvaluep, YYLTYPE const * const yylocationp, void * scanner, struct r_expression **exp)
 {
   FILE *yyoutput = yyo;
   YYUSE (yyoutput);
   YYUSE (yylocationp);
   YYUSE (scanner);
-  YYUSE (param);
+  YYUSE (exp);
   if (!yyvaluep)
     return;
 # ifdef YYPRINT
@@ -807,14 +807,14 @@ yy_symbol_value_print (FILE *yyo, int yytype, YYSTYPE const * const yyvaluep, YY
 `---------------------------*/
 
 static void
-yy_symbol_print (FILE *yyo, int yytype, YYSTYPE const * const yyvaluep, YYLTYPE const * const yylocationp, void * scanner, struct rp_param *param)
+yy_symbol_print (FILE *yyo, int yytype, YYSTYPE const * const yyvaluep, YYLTYPE const * const yylocationp, void * scanner, struct r_expression **exp)
 {
   YYFPRINTF (yyo, "%s %s (",
              yytype < YYNTOKENS ? "token" : "nterm", yytname[yytype]);
 
   YY_LOCATION_PRINT (yyo, *yylocationp);
   YYFPRINTF (yyo, ": ");
-  yy_symbol_value_print (yyo, yytype, yyvaluep, yylocationp, scanner, param);
+  yy_symbol_value_print (yyo, yytype, yyvaluep, yylocationp, scanner, exp);
   YYFPRINTF (yyo, ")");
 }
 
@@ -847,7 +847,7 @@ do {                                                            \
 `------------------------------------------------*/
 
 static void
-yy_reduce_print (yy_state_t *yyssp, YYSTYPE *yyvsp, YYLTYPE *yylsp, int yyrule, void * scanner, struct rp_param *param)
+yy_reduce_print (yy_state_t *yyssp, YYSTYPE *yyvsp, YYLTYPE *yylsp, int yyrule, void * scanner, struct r_expression **exp)
 {
   int yylno = yyrline[yyrule];
   int yynrhs = yyr2[yyrule];
@@ -861,7 +861,7 @@ yy_reduce_print (yy_state_t *yyssp, YYSTYPE *yyvsp, YYLTYPE *yylsp, int yyrule, 
       yy_symbol_print (stderr,
                        yystos[+yyssp[yyi + 1 - yynrhs]],
                        &yyvsp[(yyi + 1) - (yynrhs)]
-                       , &(yylsp[(yyi + 1) - (yynrhs)])                       , scanner, param);
+                       , &(yylsp[(yyi + 1) - (yynrhs)])                       , scanner, exp);
       YYFPRINTF (stderr, "\n");
     }
 }
@@ -869,7 +869,7 @@ yy_reduce_print (yy_state_t *yyssp, YYSTYPE *yyvsp, YYLTYPE *yylsp, int yyrule, 
 # define YY_REDUCE_PRINT(Rule)          \
 do {                                    \
   if (yydebug)                          \
-    yy_reduce_print (yyssp, yyvsp, yylsp, Rule, scanner, param); \
+    yy_reduce_print (yyssp, yyvsp, yylsp, Rule, scanner, exp); \
 } while (0)
 
 /* Nonzero means print parse trace.  It is left uninitialized so that
@@ -1137,12 +1137,12 @@ yysyntax_error (YYPTRDIFF_T *yymsg_alloc, char **yymsg,
 `-----------------------------------------------*/
 
 static void
-yydestruct (const char *yymsg, int yytype, YYSTYPE *yyvaluep, YYLTYPE *yylocationp, void * scanner, struct rp_param *param)
+yydestruct (const char *yymsg, int yytype, YYSTYPE *yyvaluep, YYLTYPE *yylocationp, void * scanner, struct r_expression **exp)
 {
   YYUSE (yyvaluep);
   YYUSE (yylocationp);
   YYUSE (scanner);
-  YYUSE (param);
+  YYUSE (exp);
   if (!yymsg)
     yymsg = "Deleting";
   YY_SYMBOL_PRINT (yymsg, yytype, yyvaluep, yylocationp);
@@ -1160,7 +1160,7 @@ yydestruct (const char *yymsg, int yytype, YYSTYPE *yyvaluep, YYLTYPE *yylocatio
 `----------*/
 
 int
-yyparse (void * scanner, struct rp_param *param)
+yyparse (void * scanner, struct r_expression **exp)
 {
 /* The lookahead symbol.  */
 int yychar;
@@ -1459,11 +1459,11 @@ yyreduce:
     break;
 
   case 7:
-                         { param->expr = rp_new_expr_def((yyvsp[0].def)); }
+                         { *exp = rp_new_expr_def((yyvsp[0].def)); }
     break;
 
   case 8:
-            { param->expr = rp_new_expr_stmt((yyvsp[0].stmt)); }
+            { *exp = rp_new_expr_stmt((yyvsp[0].stmt)); }
     break;
 
   case 9:
@@ -1545,7 +1545,7 @@ yyerrlab:
     {
       ++yynerrs;
 #if ! YYERROR_VERBOSE
-      yyerror (&yylloc, scanner, param, YY_("syntax error"));
+      yyerror (&yylloc, scanner, exp, YY_("syntax error"));
 #else
 # define YYSYNTAX_ERROR yysyntax_error (&yymsg_alloc, &yymsg, \
                                         yyssp, yytoken)
@@ -1572,7 +1572,7 @@ yyerrlab:
                 yymsgp = yymsg;
               }
           }
-        yyerror (&yylloc, scanner, param, yymsgp);
+        yyerror (&yylloc, scanner, exp, yymsgp);
         if (yysyntax_error_status == 2)
           goto yyexhaustedlab;
       }
@@ -1596,7 +1596,7 @@ yyerrlab:
       else
         {
           yydestruct ("Error: discarding",
-                      yytoken, &yylval, &yylloc, scanner, param);
+                      yytoken, &yylval, &yylloc, scanner, exp);
           yychar = YYEMPTY;
         }
     }
@@ -1650,7 +1650,7 @@ yyerrlab1:
 
       yyerror_range[1] = *yylsp;
       yydestruct ("Error: popping",
-                  yystos[yystate], yyvsp, yylsp, scanner, param);
+                  yystos[yystate], yyvsp, yylsp, scanner, exp);
       YYPOPSTACK (1);
       yystate = *yyssp;
       YY_STACK_PRINT (yyss, yyssp);
@@ -1694,7 +1694,7 @@ yyabortlab:
 | yyexhaustedlab -- memory exhaustion comes here.  |
 `-------------------------------------------------*/
 yyexhaustedlab:
-  yyerror (&yylloc, scanner, param, YY_("memory exhausted"));
+  yyerror (&yylloc, scanner, exp, YY_("memory exhausted"));
   yyresult = 2;
   /* Fall through.  */
 #endif
@@ -1710,7 +1710,7 @@ yyreturn:
          user semantic actions for why this is necessary.  */
       yytoken = YYTRANSLATE (yychar);
       yydestruct ("Cleanup: discarding lookahead",
-                  yytoken, &yylval, &yylloc, scanner, param);
+                  yytoken, &yylval, &yylloc, scanner, exp);
     }
   /* Do not reclaim the symbols of the rule whose action triggered
      this YYABORT or YYACCEPT.  */
@@ -1719,7 +1719,7 @@ yyreturn:
   while (yyssp != yyss)
     {
       yydestruct ("Cleanup: popping",
-                  yystos[+*yyssp], yyvsp, yylsp, scanner, param);
+                  yystos[+*yyssp], yyvsp, yylsp, scanner, exp);
       YYPOPSTACK (1);
     }
 #ifndef yyoverflow
@@ -1734,7 +1734,7 @@ yyreturn:
 }
 
 
-static void yyerror(YYLTYPE *yyl, void *scanner, struct rp_param *param, char const *msg) {
+static void yyerror(YYLTYPE *yyl, void *scanner, struct r_expression **exp, char const *msg) {
     (void) scanner;
-    rp_error(param, yyl->first_line, yyl->first_column, msg);
+    rp_error(exp, yyl->first_line, yyl->first_column, msg);
 }

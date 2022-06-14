@@ -15,10 +15,15 @@
 #include "../r_internal.h"
 #include "parser_internal.h"
 
-void rp_error(struct rp_param *param, int line, int col, char const *msg) {
-    param->err.line = line;
-    param->err.col = col;
-    param->err.msg = al_dict_add(msg);
+void rp_error(struct r_expression **exp, int line, int col, char const *msg) {
+    struct r_expression *exp2 = NULL;
+
+    exp2 = calloc(1, sizeof(struct r_expression));
+    CHECK_NOMEM_RT(exp2,);
+
+    exp2->data.err.msg = al_dict_add(msg);
+
+    *exp = exp2;
 }
 
 struct r_expression* rp_new_expr_def(struct r_definition *def) {

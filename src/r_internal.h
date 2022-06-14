@@ -28,14 +28,14 @@ void r_log(const char *level, const char *file, int line, const char *fmt, ...) 
 #define CHECK_NOMEM_RT(p, rt) do {\
     if (!(p)) {\
         LOG_NOMEM();\
-        return (rt);\
+        return rt;\
     }\
 } while(0)
 
 #define CHECK_UNLIKELY_RT(p, rt) do {\
     if ((p)) {\
         LOG_UNLIKELY();\
-        return (rt);\
+        return rt;\
     }\
 } while(0)
 

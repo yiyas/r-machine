@@ -17,7 +17,7 @@ struct r_expression* r_parse(const char *expr) {
     int rc;
     yyscan_t scanner = NULL;
     YY_BUFFER_STATE buffer = NULL;
-    struct rp_param parser_param;
+    struct r_expression *exp = NULL;
 
     rc = yylex_init(&scanner);
     CHECK_UNLIKELY_GOTO(rc, finish);
@@ -25,9 +25,7 @@ struct r_expression* r_parse(const char *expr) {
     buffer = yy_scan_string(expr, scanner);
     CHECK_UNLIKELY_GOTO(!buffer, finish);
 
-    memset(&parser_param, 0, sizeof(parser_param));
-
-    rc = yyparse(scanner, &parser_param);
+    rc = yyparse(scanner, &exp);
     if (rc) {
         LOG_INF("Failed to parse expression: %s", expr);
         goto finish;
@@ -36,7 +34,11 @@ struct r_expression* r_parse(const char *expr) {
     finish:
     yy_delete_buffer(buffer, scanner);
     yylex_destroy(scanner);
-    return NULL;
+    if(rc) {
+        r_destroy(exp);
+        exp = NULL;
+    }
+    return exp;
 }
 
 void r_destroy(struct r_expression *exp)

@@ -90,6 +90,6 @@ struct YYLTYPE
 
 
 
-int yyparse (void * scanner, struct rp_param *param);
+int yyparse (void * scanner, struct r_expression **exp);
 
 #endif /* !YY_YY_PARSER_BISON_H_INCLUDED  */

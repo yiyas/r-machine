@@ -28,7 +28,7 @@ int main(int argc, char *argv[])
     CHECK_UNLIKELY_RT(!exp, -1);
 
     if(exp->type == R_ERR) {
-        LOG_INF("Failed to parse: %s, error: %s", argv[1], exp->data.err->msg);
+        LOG_INF("Failed to parse: %s, error: %s", argv[1], exp->data.err.msg);
     } else {
         LOG_INF("Succeeded to parse: %s", argv[1]);
     }

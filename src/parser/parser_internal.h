@@ -19,14 +19,7 @@ struct rp_error {
     const char *msg;
 };
 
-struct rp_param {
-    void *p;
-    struct r_expression *expr;
-
-    struct rp_error err;
-};
-
-void rp_error(struct rp_param *param, int line, int col, char const *msg);
+void rp_error(struct r_expression **exp, int line, int col, char const *msg);
 
 struct r_expression* rp_new_expr_def(struct r_definition *def);
 struct r_expression* rp_new_expr_stmt(struct r_statment *stmt);
